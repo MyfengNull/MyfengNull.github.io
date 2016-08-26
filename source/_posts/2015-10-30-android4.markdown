@@ -1,0 +1,128 @@
+---
+layout: post
+title: "Android常用代码4"
+date: 2015-3-15 16:07:56 +0800
+comments: true
+categories: [Android,常用代码块]
+---
+# 欢迎来到风的博客
+
+-**设置全屏的方法**
+
+-**添加自定义控件属性**
+
+###设置全屏的方法
+在java代码中设置，需要将代码放在setContentView()之前
+``` 
+//set no title bar
+requestWindowFeature(Window.FEATURE_NO_TITLE);
+//set to full screen
+getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+```
+在AndroidManifest.xml中配置
+``` 
+android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+```
+###添加自定义控件属性
+```
+1. 在res/values文件下定义一个attrs.xml文件.代码如下: 
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        
+    <declare-styleable name="MyCustomAttr">
+        
+        <!-- 
+        	说明: reference：参考某一资源ID 
+        	使用：Customxmlns:AttrBackground = "@drawable/..."
+        -->
+        <attr name="AttrBackground" format="reference" />
+        
+        <!-- 
+        	说明: color：颜色值
+        	使用：Customxmlns:AttrColor = "@color/..."
+        -->
+        <attr name="AttrColor" format="color" />
+        
+        <!-- 
+        	说明: boolean：布尔值
+        	使用：Customxmlns:CustomBoolean = "true"
+        -->
+        <attr name="CustomBoolean" format="boolean" />      
+        
+        <!-- 
+        	说明: dimension：尺寸值
+        	使用：Customxmlns:CustomDimension = "100dip"
+        -->
+        <attr name="CustomDimension" format="dimension" />
+        
+        <!-- 
+        	说明: float：浮点值
+        	使用：Customxmlns:CustomFloat = "0.8"
+        -->
+        <attr name="CustomFloat" format="float" />
+        
+        <!-- 
+        	说明: integer：整型值
+        	使用：Customxmlns:CustomInteger = "100"
+        -->
+        <attr name="CustomInteger" format="integer" />
+        
+        <!-- 
+        	说明: string：字符串
+        	使用：Customxmlns:CustomString = "@string/..."
+        -->
+        <attr name = "CustomString" format="string" />
+        
+        <!-- 
+        	说明: fraction：百分数
+        	使用：Customxmlns:CustomFraction = "50%"
+        -->
+        <attr name = "CustomFraction" format="fraction" />
+        
+        <!-- 
+        	说明: enum：枚举值
+        	使用：Customxmlns:CustomOrientation = "vertical"
+        -->
+        <attr name="CustomOrientation">
+        	<enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+        </attr>    
+        
+        <!-- 
+        	说明:  flag：位或运算
+        	使用：Customxmlns:CustomWindowSoftInputMode = "stateUnspecified | stateUnchanged"
+        -->
+        <attr name="CustomWindowSoftInputMode">
+        	<flag name="stateUnspecified" value="0" />
+            <flag name="stateUnchanged" value="1" />
+            <flag name="stateHidden" value="2" />
+        </attr>
+        
+        <!-- 
+        	说明:  属性定义时可以指定多种类型值
+        	使用：Customxmlns:CustomBackground = "@drawable/图片ID|#00FF00"
+        -->
+        <attr name="CustomBackground" format="reference|color" />
+        
+    </declare-styleable>
+
+</resources>
+
+2. 在布局xml中如下使用该属性(其中com.customattrs为包名):
+<com.customattrs.MyCustomView
+        xmlns:canremovechild="http://schemas.android.com/apk/res/com.customattrs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        canremovechild:CustomBoolean="true" />
+
+3. 在自定义组件中，可以如下获得xml中定义的值:
+在MyCustomView.java中的构造函数中：
+public MyCustomView(Context context, AttributeSet attrs) {
+	super(context, attrs);
+		
+	TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MyCustomAttr);
+	boolean canRemoveChild = a.getBoolean(R.styleable.MyCustomAttr_CustomBoolean, false);
+	a.recycle();
+}
+
+```

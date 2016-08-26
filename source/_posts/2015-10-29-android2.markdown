@@ -1,0 +1,64 @@
+---
+layout: post
+title: "android常用代码2"
+date: 2014-7-29 9:00:24 +0800
+comments: true
+categories: [Android,常用代码块]
+---
+# 欢迎来到风的博客
+
+-**获取控件在屏幕中的位置**
+
+-**捕获按键事件**
+
+-**振动效果**
+
+-**监听Activity加载完毕**
+
+###获取控件在屏幕中的位置
+```
+int[] locations = new int[2];  
+view.getLocationOnScreen(locations);  
+int x = locations[0];//获取组件当前位置的横坐标  
+int y = locations[1];//获取组件当前位置的纵坐标  
+```
+###捕获按键事件
+```
+@Override
+public boolean onKeyDown(int keyCode, KeyEvent event) {  
+
+       if(keyCode==KeyEvent.KEYCODE_BACK){
+       }  
+
+       return super.onKeyDown(keyCode, event);
+}
+```
+
+###振动效果
+
+#####首先就要得到使用权限，在menifest.xml里面声明一下就可以了
+```
+<uses-permission android:name="android.permission.VIBRATE"/>
+```
+#####然后就可以在程序里面使用 振动了，下面可以得到振动效果的类
+```
+Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+```
+#####最后就是控制振动时间 
+```
+vibrator.vibrate(100);
+```
+#####在需要的地方做上面的操作就可以完成振动的效果了。
+
+###监听Activity加载完毕
+
+#####这个onWindowFocusChanged指的是这个Activity得到或者失去焦点的时候 就会call.
+
+#####也就是说 如果你想要做一个Activity一加载完毕，就触发什么的话 完全可以用这个！！
+```
+@Override  
+public void onWindowFocusChanged(boolean hasFocus) {  
+    // TODO Auto-generated method stub  
+    super.onWindowFocusChanged(hasFocus);  
+} 
+```

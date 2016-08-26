@@ -1,0 +1,25 @@
+---
+layout: post
+title: "Android中Socket通信"
+date: 2015-6-23 19:24:35 +0800
+comments: true
+categories: 
+---
+#欢迎来到风的博客
+###Android中Socket通信
+
+ **Socket链接的建立过程 **
+
+- **1服务器监听**
+- **2客户端发出请求** 
+- **3建立链接** 
+- **4通信** 
+
+
+ **Socket特点 **
+
+ - **1Socket基于TCP链接,数据传输有保障**
+ - **2适用于建立长时间链接** 
+ - **3Socket编程常应用于即时通讯** 
+
+ 

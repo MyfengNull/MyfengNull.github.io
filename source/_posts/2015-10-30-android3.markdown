@@ -1,0 +1,76 @@
+---
+layout: post
+title: "android常用代码3"
+date: 2014-7-30 08:15:10 +0800
+comments: true
+categories: [Android,常用代码块]
+---
+# 欢迎来到风的博客
+
+-**让AlertDialog在按钮被点击后不关闭**
+
+-**闪光灯的开启和关闭**
+
+-**让EditText失去焦点而不弹出软键盘**
+
+-**强制EditText不弹出软键盘**
+
+
+----------
+###让AlertDialog在按钮被点击后不关闭
+```
+/* *
+* * 设定使用AlertDialog时，当点击其中的按钮时，是否自动退出AlertDialog，disableOrEnable为true时退出，false时不退出
+* */
+private void disableOrEnableBtnCloseOnAlertDialog(DialogInterface dialog, boolean disableOrEnable){
+    	try {
+		Field field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
+		field.setAccessible(true);
+		field.set(dialog, disableOrEnable);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
+```
+###闪光灯的开启和关闭
+```
+<!-- 打开Camera的权限 -->
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-feature android:name="android.hardware.camera" />
+<uses-feature android:name="android.hardware.autofocus" />
+<!-- 开启闪光灯权限 -->
+<uses-permission android:name="android.permission.FLASHLIGHT" />
+
+private static Camera camera = null;
+private static Parameters parameters_light = null; 
+
+public static void turnOnLight() {
+	if(null == camera){
+		camera = Camera.open();
+		parameters_light = camera.getParameters();
+		parameters_light.setFlashMode(Parameters.FLASH_MODE_TORCH);// 开启闪光灯
+		camera.setParameters(parameters_light);
+	}
+}
+
+
+public static void turnOffLight() {
+	if(null != camera){
+		parameters_light.setFlashMode(Parameters.FLASH_MODE_OFF);// 关闭闪光灯
+		camera.setParameters(parameters_light);
+		camera.release();
+		camera = null;
+	}  
+
+}
+```
+###让EditText失去焦点而不弹出软键盘
+######只需要让其他的控件获取焦点即可：
+```
+mTv_title.setFocusable(true);
+mTv_title.setFocusableInTouchMode(true);
+```
+###强制EditText不弹出软键盘
+```
+mEt.setInputType(InputType.TYPE_NULL);
+```

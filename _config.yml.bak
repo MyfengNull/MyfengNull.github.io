@@ -99,9 +99,3 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: false
-
-# jiashare
-jia_share: true
-
-# youyan
-you_yan: true

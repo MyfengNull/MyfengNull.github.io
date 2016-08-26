@@ -1,0 +1,41 @@
+---
+layout: post
+title: "listview优化"
+date: 2014-8-30 21:05:52 +0800
+comments: true
+categories: 
+---
+#欢迎来到风的博客
+###listview优化
+```
+ @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+//        LayoutInflater inflater = LayoutInflater.from(context);
+//        layout = (LinearLayout) inflater.inflate(R.layout.item, null);
+//        TextView tvName = (TextView) layout.findViewById(R.id.tvName);
+//        TextView tvNumber = (TextView) layout.findViewById(R.id.tvNumber);
+//        tvName.setText(list.get(position).getName());
+//        tvNumber.setText(list.get(position).getNumber());
+        //listview优化
+        ViewHolder holder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item, null);
+            holder = new ViewHolder();
+            holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
+            holder.tvNumber = (TextView) convertView.findViewById(R.id.tvNumber);
+            holder.tvName.setText(list.get(position).getName());
+            holder.tvNumber.setText(list.get(position).getNumber());
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+            holder.tvName.setText(list.get(position).getName());
+            holder.tvNumber.setText(list.get(position).getNumber());
+        }
+//return layout
+        return convertView;
+    }
+    private static class ViewHolder{
+        TextView tvName;
+        TextView tvNumber;
+    }
+```
