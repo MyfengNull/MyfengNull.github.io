@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ftp | Feng Blog]]></title>
   <link href="http://myfengnull.github.io/blog/categories/ftp/atom.xml" rel="self"/>
   <link href="http://myfengnull.github.io/"/>
-  <updated>2016-08-26T20:30:27+08:00</updated>
+  <updated>2016-08-26T20:35:13+08:00</updated>
   <id>http://myfengnull.github.io/</id>
   <author>
     <name><![CDATA[YangShirong]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Android使用ftp功能]]></title>
-    <link href="http://myfengnull.github.io/blog/2016/08/27/android14/"/>
-    <updated>2016-08-27T05:44:46+08:00</updated>
-    <id>http://myfengnull.github.io/blog/2016/08/27/android14</id>
+    <link href="http://myfengnull.github.io/blog/2016/08/26/android14/"/>
+    <updated>2016-08-26T21:44:46+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2016/08/26/android14</id>
     <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
 
 <p>今天讲的是如何实现ftp服务文件遍历，并实现文件上传下载删除更新;在文章结尾也会分享我的Demo</p>
