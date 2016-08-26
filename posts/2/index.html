@@ -9,7 +9,7 @@
   <meta name="author" content="YangShirong">
 
   
-  <meta name="description" content="欢迎来到风的博客 -让AlertDialog在按钮被点击后不关闭 -闪光灯的开启和关闭 -让EditText失去焦点而不弹出软键盘 -强制EditText不弹出软键盘 让AlertDialog在按钮被点击后不关闭 1
+  <meta name="description" content="欢迎来到风的博客 listview优化 1
 2
 3
 4
@@ -21,8 +21,24 @@
 10
 11
 12
-/* *
-* * &hellip;">
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30 @Override public View getView(int position, View &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +94,99 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/30/android10/">Listview优化</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-30T21:05:52+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>listview优化</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> @Override
+</span><span class='line'>    public View getView(int position, View convertView, ViewGroup parent) {
+</span><span class='line'>//        LayoutInflater inflater = LayoutInflater.from(context);
+</span><span class='line'>//        layout = (LinearLayout) inflater.inflate(R.layout.item, null);
+</span><span class='line'>//        TextView tvName = (TextView) layout.findViewById(R.id.tvName);
+</span><span class='line'>//        TextView tvNumber = (TextView) layout.findViewById(R.id.tvNumber);
+</span><span class='line'>//        tvName.setText(list.get(position).getName());
+</span><span class='line'>//        tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>        //listview优化
+</span><span class='line'>        ViewHolder holder;
+</span><span class='line'>        if (convertView == null) {
+</span><span class='line'>            convertView = LayoutInflater.from(context).inflate(R.layout.item, null);
+</span><span class='line'>            holder = new ViewHolder();
+</span><span class='line'>            holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
+</span><span class='line'>            holder.tvNumber = (TextView) convertView.findViewById(R.id.tvNumber);
+</span><span class='line'>            holder.tvName.setText(list.get(position).getName());
+</span><span class='line'>            holder.tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>            convertView.setTag(holder);
+</span><span class='line'>        } else {
+</span><span class='line'>            holder = (ViewHolder) convertView.getTag();
+</span><span class='line'>            holder.tvName.setText(list.get(position).getName());
+</span><span class='line'>            holder.tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>        }
+</span><span class='line'>//return layout
+</span><span class='line'>        return convertView;
+</span><span class='line'>    }
+</span><span class='line'>    private static class ViewHolder{
+</span><span class='line'>        TextView tvName;
+</span><span class='line'>        TextView tvNumber;
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -523,6 +632,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/27/android14/">Android使用ftp功能</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/08/05/android11/">Android网络传输中必用的两个加密算法</a>
       </li>
     
@@ -536,10 +649,6 @@
     
       <li class="post">
         <a href="/blog/2015/06/15/android9/">实现左右点击图片预览</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/02/android8/">判断sdCard是否挂载</a>
       </li>
     
   </ul>

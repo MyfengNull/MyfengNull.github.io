@@ -4,7 +4,7 @@
   <title><![CDATA[Feng Blog]]></title>
   <link href="http://myfengnull.github.io/atom.xml" rel="self"/>
   <link href="http://myfengnull.github.io/"/>
-  <updated>2016-08-26T19:39:47+08:00</updated>
+  <updated>2016-08-26T20:30:27+08:00</updated>
   <id>http://myfengnull.github.io/</id>
   <author>
     <name><![CDATA[YangShirong]]></name>
@@ -12,6 +12,521 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android使用ftp功能]]></title>
+    <link href="http://myfengnull.github.io/blog/2016/08/27/android14/"/>
+    <updated>2016-08-27T05:44:46+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2016/08/27/android14</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>今天讲的是如何实现ftp服务文件遍历，并实现文件上传下载删除更新;在文章结尾也会分享我的Demo</p>
+
+<h5>FTP文件遍历</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/**
+</span><span class='line'> * 异步网络扫描文件列表
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>public class ScanFileTask extends AsyncTask&lt;Void, File, List&lt;FilesBean&gt;&gt; {
+</span><span class='line'>    @Override
+</span><span class='line'>    protected List&lt;FilesBean&gt; doInBackground(Void... voids) {
+</span><span class='line'>        return getFileName();
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPreExecute() {
+</span><span class='line'>        super.onPreExecute();
+</span><span class='line'>//            正在扫描
+</span><span class='line'>        pd = new ProgressDialog(DialogActivity.this);
+</span><span class='line'>        pd.setMessage("正在扫描文件...");
+</span><span class='line'>        pd.show();
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onProgressUpdate(File... values) {
+</span><span class='line'>        super.onProgressUpdate(values);
+</span><span class='line'>        pd.setMessage(values[0].getName());
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPostExecute(List&lt;FilesBean&gt; filesBeen) {
+</span><span class='line'>        super.onPostExecute(filesBeen);
+</span><span class='line'>        adapters = new MyAdapters(DialogActivity.this, filesBeen);
+</span><span class='line'>        mListView.setAdapter(adapters);
+</span><span class='line'>        pd.dismiss();
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    public List&lt;FilesBean&gt; getFileName() {
+</span><span class='line'>        List&lt;FilesBean&gt; uploadFileNameList = new ArrayList&lt;FilesBean&gt;();
+</span><span class='line'>
+</span><span class='line'>        FTPClient ftp = new FTPClient();
+</span><span class='line'>        //解码不然中文乱码
+</span><span class='line'>        ftp.setControlEncoding("utf-8");
+</span><span class='line'>        try {
+</span><span class='line'>
+</span><span class='line'>            int reply;
+</span><span class='line'>            ftp.connect(configEntity.ftpIp, configEntity.ftpPort);//连接FTP服务器
+</span><span class='line'>            //如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
+</span><span class='line'>            ftp.login(configEntity.ftpUser, configEntity.ftpPassWord);//登录
+</span><span class='line'>            ftp.enterLocalPassiveMode();
+</span><span class='line'>            reply = ftp.getReplyCode();
+</span><span class='line'>            ftp.setFileType(FTPClient.BINARY_FILE_TYPE);
+</span><span class='line'>            if (!FTPReply.isPositiveCompletion(reply)) {
+</span><span class='line'>                ftp.disconnect();
+</span><span class='line'>            }
+</span><span class='line'>            FTPFile[] files = ftp.listFiles("");
+</span><span class='line'>            if (files != null) {
+</span><span class='line'>                for (int i = 0; i &lt; files.length; i++) {
+</span><span class='line'>                    Date date = new Date(files[i].getTimestamp().getTime().getTime());
+</span><span class='line'>                    FilesBean file = new FilesBean();
+</span><span class='line'>                    file.setTitle(files[i].getName());
+</span><span class='line'>                    file.setTime(date + "");
+</span><span class='line'>                    uploadFileNameList.add(file);
+</span><span class='line'>                    Log.i("FileShareActivity", "文件名：" + files[i].getName());
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>        } catch (IOException e) {
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        }
+</span><span class='line'>        return uploadFileNameList;
+</span><span class='line'>    }
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>FTP文件下载</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> /**
+</span><span class='line'> * 异步网络下载文件
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>public class DownLoadFileTask extends AsyncTask&lt;String, String, String&gt; {
+</span><span class='line'>    //预处理
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPreExecute() {
+</span><span class='line'>        super.onPreExecute();
+</span><span class='line'>        pd = new ProgressDialog(DialogActivity.this);
+</span><span class='line'>        pd.setMessage("正在下载文件...");
+</span><span class='line'>        pd.show();
+</span><span class='line'>
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    protected String doInBackground(String... params) {
+</span><span class='line'>        String downFileName = params[0];
+</span><span class='line'>        try {
+</span><span class='line'>
+</span><span class='line'>            //单文件下载
+</span><span class='line'>            new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).downloadSingleFile(downFileName, "/mnt/sdcard/download/", downFileName, new FtpUtils.DownLoadProgressListener() {
+</span><span class='line'>
+</span><span class='line'>                @Override
+</span><span class='line'>                public void onDownLoadProgress(String currentStep, long downProcess, File file) {
+</span><span class='line'>                    Log.d(TAG, currentStep);
+</span><span class='line'>                    if (currentStep.equals(MainActivity.FTP_DOWN_SUCCESS)) {
+</span><span class='line'>                        Log.d(TAG, "-----xiazai--successful");
+</span><span class='line'>                    } else if (currentStep.equals(MainActivity.FTP_DOWN_LOADING)) {
+</span><span class='line'>                        Log.d(TAG, "-----xiazai---" + downProcess + "%");
+</span><span class='line'>                    }
+</span><span class='line'>                }
+</span><span class='line'>
+</span><span class='line'>            });
+</span><span class='line'>
+</span><span class='line'>        } catch (Exception e) {
+</span><span class='line'>            // TODO Auto-generated catch block
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        return null;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    //结束时线程
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPostExecute(String s) {
+</span><span class='line'>        super.onPostExecute(s);
+</span><span class='line'>        pd.dismiss();
+</span><span class='line'>        pd = null;
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>FTP文件上传</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  /**
+</span><span class='line'>     * 异步网络上传文件
+</span><span class='line'>     */
+</span><span class='line'>    public class UpLoadFileTask extends AsyncTask&lt;String, String, String&gt; {
+</span><span class='line'>        //预处理
+</span><span class='line'>        @Override
+</span><span class='line'>        protected void onPreExecute() {
+</span><span class='line'>            super.onPreExecute();
+</span><span class='line'>            pd = new ProgressDialog(DialogActivity.this);
+</span><span class='line'>            pd.setMessage("正在上传文件...");
+</span><span class='line'>            pd.show();
+</span><span class='line'>
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        @Override
+</span><span class='line'>        protected String doInBackground(String... params) {
+</span><span class='line'>
+</span><span class='line'>            final String aafileurl = params[0];
+</span><span class='line'>            // 上传
+</span><span class='line'>            File file = new File(aafileurl);
+</span><span class='line'>            try {
+</span><span class='line'>
+</span><span class='line'>                //单文件上传
+</span><span class='line'>                new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).uploadSingleFile(file, "", new FtpUtils.UploadProgressListener() {
+</span><span class='line'>                    @Override
+</span><span class='line'>                    public void onUploadProgress(String currentStep, long uploadSize, File file) {
+</span><span class='line'>                        // TODO Auto-generated method stub
+</span><span class='line'>                        Log.d("FtpUtils", currentStep);
+</span><span class='line'>                        if (currentStep.equals(MainActivity.FTP_UPLOAD_SUCCESS)) {
+</span><span class='line'>                            //子线程使用toast
+</span><span class='line'>                            Message msg = msgHandler.obtainMessage();
+</span><span class='line'>                            msg.arg1 = R.string.post_success;
+</span><span class='line'>                            msgHandler.sendMessage(msg);
+</span><span class='line'>                            Log.d(TAG, "-----shangchuan---SUCCESS----");
+</span><span class='line'>                        } else if (currentStep.equals(MainActivity.FTP_UPLOAD_LOADING)) {
+</span><span class='line'>                            long fize = file.length();
+</span><span class='line'>                            float num = (float) uploadSize / (float) fize;
+</span><span class='line'>                            int result = (int) (num * 100);
+</span><span class='line'>                            Log.d(TAG, "-----shangchuan---" + result + "%");
+</span><span class='line'>                        }
+</span><span class='line'>                    }
+</span><span class='line'>                });
+</span><span class='line'>            } catch (IOException e) {
+</span><span class='line'>                // TODO Auto-generated catch block
+</span><span class='line'>                e.printStackTrace();
+</span><span class='line'>            }
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>            return null;
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        //结束时线程
+</span><span class='line'>        @Override
+</span><span class='line'>        protected void onPostExecute(String s) {
+</span><span class='line'>            super.onPostExecute(s);
+</span><span class='line'>            pd.dismiss();
+</span><span class='line'>            pd = null;
+</span><span class='line'>            ScanFileTask sft = new ScanFileTask();
+</span><span class='line'>            sft.execute();
+</span><span class='line'>            adapters.notifyDataSetChanged();
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>FTP文件删除</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/**
+</span><span class='line'> * 异步网络删除文件
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>public class DelFileTask extends AsyncTask&lt;String, String, String&gt; {
+</span><span class='line'>    //预处理
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPreExecute() {
+</span><span class='line'>        super.onPreExecute();
+</span><span class='line'>        pd = new ProgressDialog(DialogActivity.this);
+</span><span class='line'>        pd.setMessage("正在删除文件...");
+</span><span class='line'>        pd.show();
+</span><span class='line'>
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    protected String doInBackground(String... params) {
+</span><span class='line'>        String delFileName = params[0];
+</span><span class='line'>        // 删除
+</span><span class='line'>        try {
+</span><span class='line'>
+</span><span class='line'>            new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).deleteSingleFile(delFileName, new FtpUtils.DeleteFileProgressListener() {
+</span><span class='line'>
+</span><span class='line'>                @Override
+</span><span class='line'>                public void onDeleteProgress(String currentStep) {
+</span><span class='line'>                    Log.d(TAG, currentStep);
+</span><span class='line'>                    if (currentStep.equals(MainActivity.FTP_DELETEFILE_SUCCESS)) {
+</span><span class='line'>                        Log.d(TAG, "-----shanchu--success");
+</span><span class='line'>                    } else if (currentStep.equals(MainActivity.FTP_DELETEFILE_FAIL)) {
+</span><span class='line'>                        Log.d(TAG, "-----shanchu--fail");
+</span><span class='line'>                    }
+</span><span class='line'>                }
+</span><span class='line'>
+</span><span class='line'>            });
+</span><span class='line'>
+</span><span class='line'>        } catch (Exception e) {
+</span><span class='line'>            // TODO Auto-generated catch block
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        return null;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    //结束时线程
+</span><span class='line'>    @Override
+</span><span class='line'>    protected void onPostExecute(String s) {
+</span><span class='line'>        super.onPostExecute(s);
+</span><span class='line'>        pd.dismiss();
+</span><span class='line'>        pd = null;
+</span><span class='line'>        ScanFileTask sft = new ScanFileTask();
+</span><span class='line'>        sft.execute();
+</span><span class='line'>        adapters.notifyDataSetChanged();
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>注意ftp使用时需要开启线程或异步网络,并在清单文件中添加权限:</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /&gt;
+</span><span class='line'>&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+</span><span class='line'>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Demo下载地址:<a href="https://github.com/MyfengNull/FtpDemo2">https://github.com/MyfengNull/FtpDemo2</a></p>
+
+<blockquote><p>本文原创转载请注明出处</p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android网络传输中必用的两个加密算法]]></title>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Feng Blog]]></title>
   <link href="http://myfengnull.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://myfengnull.github.io/"/>
-  <updated>2016-08-26T19:39:47+08:00</updated>
+  <updated>2016-08-26T20:30:27+08:00</updated>
   <id>http://myfengnull.github.io/</id>
   <author>
     <name><![CDATA[YangShirong]]></name>
@@ -12,6 +12,280 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android使用ftp功能]]></title>
+    <link href="http://myfengnull.github.io/blog/2016/08/27/android14/"/>
+    <updated>2016-08-27T05:44:46+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2016/08/27/android14</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>今天讲的是如何实现ftp服务文件遍历，并实现文件上传下载删除更新;在文章结尾也会分享我的Demo</p>
+
+<h5>FTP文件遍历</h5>
+
+<pre><code>    /**
+     * 异步网络扫描文件列表
+     */
+
+    public class ScanFileTask extends AsyncTask&lt;Void, File, List&lt;FilesBean&gt;&gt; {
+        @Override
+        protected List&lt;FilesBean&gt; doInBackground(Void... voids) {
+            return getFileName();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            正在扫描
+            pd = new ProgressDialog(DialogActivity.this);
+            pd.setMessage("正在扫描文件...");
+            pd.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(File... values) {
+            super.onProgressUpdate(values);
+            pd.setMessage(values[0].getName());
+        }
+
+        @Override
+        protected void onPostExecute(List&lt;FilesBean&gt; filesBeen) {
+            super.onPostExecute(filesBeen);
+            adapters = new MyAdapters(DialogActivity.this, filesBeen);
+            mListView.setAdapter(adapters);
+            pd.dismiss();
+        }
+
+        public List&lt;FilesBean&gt; getFileName() {
+            List&lt;FilesBean&gt; uploadFileNameList = new ArrayList&lt;FilesBean&gt;();
+
+            FTPClient ftp = new FTPClient();
+            //解码不然中文乱码
+            ftp.setControlEncoding("utf-8");
+            try {
+
+                int reply;
+                ftp.connect(configEntity.ftpIp, configEntity.ftpPort);//连接FTP服务器
+                //如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
+                ftp.login(configEntity.ftpUser, configEntity.ftpPassWord);//登录
+                ftp.enterLocalPassiveMode();
+                reply = ftp.getReplyCode();
+                ftp.setFileType(FTPClient.BINARY_FILE_TYPE);
+                if (!FTPReply.isPositiveCompletion(reply)) {
+                    ftp.disconnect();
+                }
+                FTPFile[] files = ftp.listFiles("");
+                if (files != null) {
+                    for (int i = 0; i &lt; files.length; i++) {
+                        Date date = new Date(files[i].getTimestamp().getTime().getTime());
+                        FilesBean file = new FilesBean();
+                        file.setTitle(files[i].getName());
+                        file.setTime(date + "");
+                        uploadFileNameList.add(file);
+                        Log.i("FileShareActivity", "文件名：" + files[i].getName());
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return uploadFileNameList;
+        }
+    }
+</code></pre>
+
+<h5>FTP文件下载</h5>
+
+<pre><code>     /**
+     * 异步网络下载文件
+     */
+
+    public class DownLoadFileTask extends AsyncTask&lt;String, String, String&gt; {
+        //预处理
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(DialogActivity.this);
+            pd.setMessage("正在下载文件...");
+            pd.show();
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String downFileName = params[0];
+            try {
+
+                //单文件下载
+                new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).downloadSingleFile(downFileName, "/mnt/sdcard/download/", downFileName, new FtpUtils.DownLoadProgressListener() {
+
+                    @Override
+                    public void onDownLoadProgress(String currentStep, long downProcess, File file) {
+                        Log.d(TAG, currentStep);
+                        if (currentStep.equals(MainActivity.FTP_DOWN_SUCCESS)) {
+                            Log.d(TAG, "-----xiazai--successful");
+                        } else if (currentStep.equals(MainActivity.FTP_DOWN_LOADING)) {
+                            Log.d(TAG, "-----xiazai---" + downProcess + "%");
+                        }
+                    }
+
+                });
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        //结束时线程
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            pd.dismiss();
+            pd = null;
+        }
+    }
+</code></pre>
+
+<h5>FTP文件上传</h5>
+
+<pre><code>  /**
+     * 异步网络上传文件
+     */
+    public class UpLoadFileTask extends AsyncTask&lt;String, String, String&gt; {
+        //预处理
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(DialogActivity.this);
+            pd.setMessage("正在上传文件...");
+            pd.show();
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            final String aafileurl = params[0];
+            // 上传
+            File file = new File(aafileurl);
+            try {
+
+                //单文件上传
+                new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).uploadSingleFile(file, "", new FtpUtils.UploadProgressListener() {
+                    @Override
+                    public void onUploadProgress(String currentStep, long uploadSize, File file) {
+                        // TODO Auto-generated method stub
+                        Log.d("FtpUtils", currentStep);
+                        if (currentStep.equals(MainActivity.FTP_UPLOAD_SUCCESS)) {
+                            //子线程使用toast
+                            Message msg = msgHandler.obtainMessage();
+                            msg.arg1 = R.string.post_success;
+                            msgHandler.sendMessage(msg);
+                            Log.d(TAG, "-----shangchuan---SUCCESS----");
+                        } else if (currentStep.equals(MainActivity.FTP_UPLOAD_LOADING)) {
+                            long fize = file.length();
+                            float num = (float) uploadSize / (float) fize;
+                            int result = (int) (num * 100);
+                            Log.d(TAG, "-----shangchuan---" + result + "%");
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
+
+        //结束时线程
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            pd.dismiss();
+            pd = null;
+            ScanFileTask sft = new ScanFileTask();
+            sft.execute();
+            adapters.notifyDataSetChanged();
+        }
+    }
+</code></pre>
+
+<h5>FTP文件删除</h5>
+
+<pre><code>    /**
+     * 异步网络删除文件
+     */
+
+    public class DelFileTask extends AsyncTask&lt;String, String, String&gt; {
+        //预处理
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(DialogActivity.this);
+            pd.setMessage("正在删除文件...");
+            pd.show();
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String delFileName = params[0];
+            // 删除
+            try {
+
+                new FtpUtils(configEntity.ftpIp, configEntity.ftpPort, configEntity.ftpUser, configEntity.ftpPassWord).deleteSingleFile(delFileName, new FtpUtils.DeleteFileProgressListener() {
+
+                    @Override
+                    public void onDeleteProgress(String currentStep) {
+                        Log.d(TAG, currentStep);
+                        if (currentStep.equals(MainActivity.FTP_DELETEFILE_SUCCESS)) {
+                            Log.d(TAG, "-----shanchu--success");
+                        } else if (currentStep.equals(MainActivity.FTP_DELETEFILE_FAIL)) {
+                            Log.d(TAG, "-----shanchu--fail");
+                        }
+                    }
+
+                });
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        //结束时线程
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            pd.dismiss();
+            pd = null;
+            ScanFileTask sft = new ScanFileTask();
+            sft.execute();
+            adapters.notifyDataSetChanged();
+        }
+
+    }
+</code></pre>
+
+<h4>注意ftp使用时需要开启线程或异步网络,并在清单文件中添加权限:</h4>
+
+<pre><code>&lt;uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /&gt;
+&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+</code></pre>
+
+<p>Demo下载地址:<a href="https://github.com/MyfengNull/FtpDemo2">https://github.com/MyfengNull/FtpDemo2</a></p>
+
+<blockquote><p>本文原创转载请注明出处</p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[实现扫描二维码和生成带logo的二维码]]></title>
@@ -346,45 +620,6 @@ Demo下载地址:<a href="https://github.com/MyfengNull/QrCode">https://github.c
 
     }
 
-}
-</code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[重写listview,使其嵌套scrollview]]></title>
-    <link href="http://myfengnull.github.io/blog/2015/05/06/android6/"/>
-    <updated>2015-05-06T16:40:49+08:00</updated>
-    <id>http://myfengnull.github.io/blog/2015/05/06/android6</id>
-    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
-
-<h3>重写listview,使其嵌套scrollview</h3>
-
-<pre><code>import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.ListView;
-
-public class ListViewForScrollView extends ListView {
-    public ListViewForScrollView(Context context) {
-        super(context);
-    }
-
-    public ListViewForScrollView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public ListViewForScrollView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    /**
-    * 重写该方法，达到使ListView适应ScrollView的效果
-    */
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int expandSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE &gt;&gt; 2,    MeasureSpec.AT_MOST);
-        super.onMeasure(widthMeasureSpec, expandSpec);
-    }
 }
 </code></pre>
 ]]></content>
