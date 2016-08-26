@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Setontouchlistener | Feng Blog]]></title>
+  <link href="http://myfengnull.github.io/blog/categories/setontouchlistener/atom.xml" rel="self"/>
+  <link href="http://myfengnull.github.io/"/>
+  <updated>2016-08-26T15:01:27+08:00</updated>
+  <id>http://myfengnull.github.io/</id>
+  <author>
+    <name><![CDATA[YangShirong]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[实现左右点击图片预览]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/06/15/android9/"/>
+    <updated>2015-06-15T16:59:34+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/06/15/android9</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<h3>实现左右点击图片预览</h3>
+
+<pre><code>public class MainActivity extends Activity {
+    private ImageView iv;
+    int img_[] = new int[] { R.drawable.img_1, R.drawable.img_2,
+            R.drawable.img_3, R.drawable.img_4, R.drawable.img_5,
+            R.drawable.img_6, R.drawable.img_7, R.drawable.img_8,
+            R.drawable.img_9, };
+    int count = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        final int width = this.getWindowManager().getDefaultDisplay()
+                .getWidth();
+        iv = (ImageView) findViewById(R.id.imageView1);
+        iv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ImageView view = (ImageView) v;
+                int x = (int) event.getX();
+                if (x &gt;= (width / 2)) {
+                    if (count == 8) {
+                        count = -1;
+                    }
+                    view.setImageResource(img_[++count]);
+                } else {
+                    if (x &lt; (width / 2)) {
+                        if (count == 0) {
+                            count = 9;
+                        }
+                        view.setImageResource(img_[--count]);
+                    }
+                }
+                return false;
+            }
+        });
+
+    }
+
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

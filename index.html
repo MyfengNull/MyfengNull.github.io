@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>My Octopress Blog</title>
-  <meta name="author" content="Your Name">
+  <title>Feng Blog</title>
+  <meta name="author" content="YangShirong">
 
   
-  <meta name="description" content=" Blog Archives Recent Posts ">
+  <meta name="description" content="欢迎来到风的博客 MD5 和 RSA MD5和RSA是网络传输中最常用的两个算法，了解这两个算法原理后就能大致知道加密是怎么一回事了。但这两种算法使用环境有差异，刚好互补 MD5加密 首先MD5是不可逆的，只能加密而不能解密。比如明文是yanzi1225627,得到MD5加密后的字符串是: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,7 +21,7 @@
   <link rel="canonical" href="http://myfengnull.github.io/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <link href="/atom.xml" rel="alternate" title="Feng Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
@@ -36,9 +36,9 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">My Octopress Blog</a></h1>
+  <h1><a href="/">Feng Blog</a></h1>
   
-    <h2>A blogging framework for hackers.</h2>
+    <h2>To be or not to be that is a question.</h2>
   
 </hgroup>
 
@@ -48,7 +48,7 @@
   
 </ul>
   
-<form action="https://www.google.com/search" method="get">
+<form action="https://www.baidu.com" method="get">
   <fieldset role="search">
     <input type="hidden" name="sitesearch" value="myfengnull.github.io">
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
@@ -66,7 +66,1913 @@
       <div class="blog-index">
   
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/05/android11/">Android网络传输中必用的两个加密算法</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-05T09:57:32+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:57 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>MD5 和 RSA</h3>
+
+<p>MD5和RSA是网络传输中最常用的两个算法，了解这两个算法原理后就能大致知道加密是怎么一回事了。但这两种算法使用环境有差异，刚好互补</p>
+
+<hr />
+
+<h2>MD5加密</h2>
+
+<h6>首先MD5是不可逆的，只能加密而不能解密。比如明文是yanzi1225627,得到MD5加密后的字符串是:14F2AE15259E2C276A095E7394DA0CA9  但不能由后面一大串倒推出yanzi1225627.因此可以用来存储用户输入的密码在服务器上。现在下载文件校验文件是否中途被篡改也是用的它，原理参见：<a href="http://blog.csdn.net/forgotaboutgirl/article/details/7258109">http://blog.csdn.net/forgotaboutgirl/article/details/7258109</a> 无论在Android上还是pc上用java实现MD5都比较容易，因为java已经把它做到了java.security.MessageDigest里。下面是一个MD5Util.java类：</h6>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>package org.md5.util;
+</span><span class='line'>import java.security.MessageDigest;
+</span><span class='line'>public class MD5Util {
+</span><span class='line'>  public final static String getMD5String(String s) {
+</span><span class='line'>      char hexDigits[] = { '0', '1', '2', '3', '4',
+</span><span class='line'>              '5', '6', '7', '8', '9',
+</span><span class='line'>              'A', 'B', 'C', 'D', 'E', 'F' };
+</span><span class='line'>      try {
+</span><span class='line'>          byte[] btInput = s.getBytes();
+</span><span class='line'>          //获得MD5摘要算法的 MessageDigest 对象
+</span><span class='line'>          MessageDigest mdInst = MessageDigest.getInstance("MD5");
+</span><span class='line'>          //使用指定的字节更新摘要
+</span><span class='line'>          mdInst.update(btInput);
+</span><span class='line'>          //获得密文
+</span><span class='line'>          byte[] md = mdInst.digest();
+</span><span class='line'>          //把密文转换成十六进制的字符串形式
+</span><span class='line'>          int j = md.length;
+</span><span class='line'>          char str[] = new char[j * 2];
+</span><span class='line'>          int k = 0;
+</span><span class='line'>          for (int i = 0; i &lt; j; i++) {
+</span><span class='line'>              byte byte0 = md[i];
+</span><span class='line'>              str[k++] = hexDigits[byte0 &gt;&gt;&gt; 4 & 0xf];
+</span><span class='line'>              str[k++] = hexDigits[byte0 & 0xf];
+</span><span class='line'>          }
+</span><span class='line'>          return new String(str);
+</span><span class='line'>      }
+</span><span class='line'>      catch (Exception e) {
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>          return null;
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过下面两行代码调用:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//MD5加密测试
+</span><span class='line'>      String srcString = "yanzi1225627";
+</span><span class='line'>      System.out.println("MD5加密后 = " + MD5Util.getMD5String(srcString));</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>RSA 加密</h2>
+
+<p>RSA是可逆的，一个字符串可以经rsa加密后，经加密后的字符串传到对端如服务器上，再进行解密即可。前提是服务器知道解密的私钥，当然这个私钥最好不要再网络传输。
+<strong>RSA算法描述中需要以下几个变量:</strong>
+- <strong>1:</strong>p和q 是不相等的，足够大的两个质数。 p和q是保密的
+- <strong>2:</strong>n = p<em>q n是公开的
+- <strong>3:</strong>f(n) = (p-1)</em>(q-1)
+- <strong>4:</strong>e 是和f(n)互质的质数
+- <strong>5:</strong>计算参数d
+- <strong>6:</strong>经过上面5步计算得到公钥KU=(e,n) 私钥KR=(d,n)
+下面两篇文章对此有清晰的描述:
+<a href="http://wenku.baidu.com/view/e53fbe36a32d7375a417801b.html">http://wenku.baidu.com/view/e53fbe36a32d7375a417801b.html</a>
+<a href="http://bank.hexun.com/2009-06-24/118958531.html">http://bank.hexun.com/2009-06-24/118958531.html</a></p>
+
+<h4>下面是java实现RSAUtil.java类:</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import javax.crypto.Cipher;
+</span><span class='line'>import java.security.*;
+</span><span class='line'>import java.security.spec.RSAPublicKeySpec;
+</span><span class='line'>import java.security.spec.RSAPrivateKeySpec;
+</span><span class='line'>import java.security.spec.InvalidKeySpecException;
+</span><span class='line'>import java.security.interfaces.RSAPrivateKey;
+</span><span class='line'>import java.security.interfaces.RSAPublicKey;
+</span><span class='line'>import java.io.*;
+</span><span class='line'>import java.math.BigInteger;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * RSA 工具类。提供加密，解密，生成密钥对等方法。
+</span><span class='line'> * 需要到http://www.bouncycastle.org下载bcprov-jdk14-123.jar。
+</span><span class='line'> * RSA加密原理概述  
+</span><span class='line'> * RSA的安全性依赖于大数的分解，公钥和私钥都是两个大素数（大于100的十进制位）的函数。  
+</span><span class='line'> * 据猜测，从一个密钥和密文推断出明文的难度等同于分解两个大素数的积  
+</span><span class='line'> * ===================================================================  
+</span><span class='line'> * （该算法的安全性未得到理论的证明）  
+</span><span class='line'> * ===================================================================  
+</span><span class='line'> * 密钥的产生：  
+</span><span class='line'> * 1.选择两个大素数 p,q ,计算 n=p*q;  
+</span><span class='line'> * 2.随机选择加密密钥 e ,要求 e 和 (p-1)*(q-1)互质  
+</span><span class='line'> * 3.利用 Euclid 算法计算解密密钥 d , 使其满足 e*d = 1(mod(p-1)*(q-1)) (其中 n,d 也要互质)  
+</span><span class='line'> * 4:至此得出公钥为 (n,e) 私钥为 (n,d)  
+</span><span class='line'> * ===========================================================
+</span><span class='line'> * 加解密方法：  
+</span><span class='line'> * 1.首先将要加密的信息 m(二进制表示) 分成等长的数据块 m1,m2,...,mi 块长 s(尽可能大) ,其中 2^s&lt;n  
+</span><span class='line'> * 2:对应的密文是： ci = mi^e(mod n)  
+</span><span class='line'> * 3:解密时作如下计算： mi = ci^d(mod n)  
+</span><span class='line'> * ===========================================================
+</span><span class='line'> * RSA速度  
+</span><span class='line'> * 由于进行的都是大数计算，使得RSA最快的情况也比DES慢上100倍，无论 是软件还是硬件实现。  
+</span><span class='line'> * 速度一直是RSA的缺陷。一般来说只用于少量数据 加密。 
+</span><span class='line'> *文件名：RSAUtil.java&lt;br&gt;
+</span><span class='line'> *@author 董利伟&lt;br&gt;
+</span><span class='line'> *版本:&lt;br&gt;
+</span><span class='line'> *描述：&lt;br&gt;
+</span><span class='line'> *创建时间:2008-9-23 下午09:58:16&lt;br&gt;
+</span><span class='line'> *文件描述：&lt;br&gt;
+</span><span class='line'> *修改者：&lt;br&gt;
+</span><span class='line'> *修改日期：&lt;br&gt;
+</span><span class='line'> *修改描述：&lt;br&gt;
+</span><span class='line'> */
+</span><span class='line'>public class RSAUtil {
+</span><span class='line'>  //密钥对
+</span><span class='line'>  private KeyPair keyPair = null;
+</span><span class='line'>  /**
+</span><span class='line'>   * 初始化密钥对
+</span><span class='line'>   */
+</span><span class='line'>  public RSAUtil(){
+</span><span class='line'>      try {
+</span><span class='line'>          this.keyPair = this.generateKeyPair();
+</span><span class='line'>      } catch (Exception e) {
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>  * 生成密钥对
+</span><span class='line'>  * @return KeyPair
+</span><span class='line'>  * @throws Exception
+</span><span class='line'>  */
+</span><span class='line'>  private KeyPair generateKeyPair() throws Exception {
+</span><span class='line'>      try {
+</span><span class='line'>          KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA",new org.bouncycastle.jce.provider.BouncyCastleProvider());
+</span><span class='line'>          //这个值关系到块加密的大小，可以更改，但是不要太大，否则效率会低
+</span><span class='line'>          final int KEY_SIZE = 1024;
+</span><span class='line'>          keyPairGen.initialize(KEY_SIZE, new SecureRandom());
+</span><span class='line'>          KeyPair keyPair = keyPairGen.genKeyPair();
+</span><span class='line'>          return keyPair;
+</span><span class='line'>      } catch (Exception e) {
+</span><span class='line'>          throw new Exception(e.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>  * 生成公钥
+</span><span class='line'>  * @param modulus
+</span><span class='line'>  * @param publicExponent
+</span><span class='line'>  * @return RSAPublicKey
+</span><span class='line'>  * @throws Exception
+</span><span class='line'>  */
+</span><span class='line'>  private RSAPublicKey generateRSAPublicKey(byte[] modulus, byte[] publicExponent) throws Exception {
+</span><span class='line'>      KeyFactory keyFac = null;
+</span><span class='line'>      try {
+</span><span class='line'>          keyFac = KeyFactory.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
+</span><span class='line'>      } catch (NoSuchAlgorithmException ex) {
+</span><span class='line'>      throw new Exception(ex.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>      RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
+</span><span class='line'>      try {
+</span><span class='line'>          return (RSAPublicKey) keyFac.generatePublic(pubKeySpec);
+</span><span class='line'>      } catch (InvalidKeySpecException ex) {
+</span><span class='line'>          throw new Exception(ex.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>  * 生成私钥
+</span><span class='line'>  * @param modulus
+</span><span class='line'>  * @param privateExponent
+</span><span class='line'>  * @return RSAPrivateKey
+</span><span class='line'>  * @throws Exception
+</span><span class='line'>  */
+</span><span class='line'>  private RSAPrivateKey generateRSAPrivateKey(byte[] modulus, byte[] privateExponent) throws Exception {
+</span><span class='line'>      KeyFactory keyFac = null;
+</span><span class='line'>      try {
+</span><span class='line'>          keyFac = KeyFactory.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
+</span><span class='line'>      } catch (NoSuchAlgorithmException ex) {
+</span><span class='line'>          throw new Exception(ex.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>      RSAPrivateKeySpec priKeySpec = new RSAPrivateKeySpec(new BigInteger(modulus), new BigInteger(privateExponent));
+</span><span class='line'>      try {
+</span><span class='line'>          return (RSAPrivateKey) keyFac.generatePrivate(priKeySpec);
+</span><span class='line'>      } catch (InvalidKeySpecException ex) {
+</span><span class='line'>          throw new Exception(ex.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>  * 加密
+</span><span class='line'>  * @param key 加密的密钥
+</span><span class='line'>  * @param data 待加密的明文数据
+</span><span class='line'>  * @return 加密后的数据
+</span><span class='line'>  * @throws Exception
+</span><span class='line'>  */
+</span><span class='line'>  public byte[] encrypt(Key key, byte[] data) throws Exception {
+</span><span class='line'>      try {
+</span><span class='line'>          Cipher cipher = Cipher.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
+</span><span class='line'>          cipher.init(Cipher.ENCRYPT_MODE, key);
+</span><span class='line'>          //获得加密块大小，如:加密前数据为128个byte，而key_size=1024 加密块大小为127 byte,加密后为128个byte;
+</span><span class='line'>          //因此共有2个加密块，第一个127 byte第二个为1个byte
+</span><span class='line'>          int blockSize = cipher.getBlockSize();
+</span><span class='line'>          int outputSize = cipher.getOutputSize(data.length);//获得加密块加密后块大小
+</span><span class='line'>          int leavedSize = data.length % blockSize;
+</span><span class='line'>          int blocksSize = leavedSize != 0 ? data.length / blockSize + 1 : data.length / blockSize;
+</span><span class='line'>          byte[] raw = new byte[outputSize * blocksSize];
+</span><span class='line'>          int i = 0;
+</span><span class='line'>          while (data.length - i * blockSize &gt; 0) {
+</span><span class='line'>              if (data.length - i * blockSize &gt; blockSize)
+</span><span class='line'>              cipher.doFinal(data, i * blockSize, blockSize, raw, i * outputSize);
+</span><span class='line'>              else
+</span><span class='line'>              cipher.doFinal(data, i * blockSize, data.length - i * blockSize, raw, i * outputSize);
+</span><span class='line'>              //这里面doUpdate方法不可用，查看源代码后发现每次doUpdate后并没有什么实际动作除了把byte[]放到ByteArrayOutputStream中
+</span><span class='line'>              //，而最后doFinal的时候才将所有的byte[]进行加密，可是到了此时加密块大小很可能已经超出了OutputSize所以只好用dofinal方法。
+</span><span class='line'>              i++;
+</span><span class='line'>          }
+</span><span class='line'>          return raw;
+</span><span class='line'>      } catch (Exception e) {
+</span><span class='line'>      throw new Exception(e.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>  * 解密
+</span><span class='line'>  * @param key 解密的密钥
+</span><span class='line'>  * @param raw 已经加密的数据
+</span><span class='line'>  * @return 解密后的明文
+</span><span class='line'>  * @throws Exception
+</span><span class='line'>  */
+</span><span class='line'>  public byte[] decrypt(Key key, byte[] raw) throws Exception {
+</span><span class='line'>      try {
+</span><span class='line'>          Cipher cipher = Cipher.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
+</span><span class='line'>          cipher.init(cipher.DECRYPT_MODE, key);
+</span><span class='line'>          int blockSize = cipher.getBlockSize();
+</span><span class='line'>          ByteArrayOutputStream bout = new ByteArrayOutputStream(64);
+</span><span class='line'>          int j = 0;
+</span><span class='line'>          while (raw.length - j * blockSize &gt; 0) {
+</span><span class='line'>              bout.write(cipher.doFinal(raw, j * blockSize, blockSize));
+</span><span class='line'>              j++;
+</span><span class='line'>          }
+</span><span class='line'>          return bout.toByteArray();
+</span><span class='line'>      } catch (Exception e) {
+</span><span class='line'>          throw new Exception(e.getMessage());
+</span><span class='line'>      }
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>   * 返回公钥
+</span><span class='line'>   * @return
+</span><span class='line'>   * @throws Exception 
+</span><span class='line'>   */
+</span><span class='line'>  public RSAPublicKey getRSAPublicKey() throws Exception{
+</span><span class='line'>      //获取公钥
+</span><span class='line'>      RSAPublicKey pubKey = (RSAPublicKey) keyPair.getPublic();
+</span><span class='line'>      //获取公钥系数(字节数组形式)
+</span><span class='line'>      byte[] pubModBytes = pubKey.getModulus().toByteArray();
+</span><span class='line'>      //返回公钥公用指数(字节数组形式)
+</span><span class='line'>      byte[] pubPubExpBytes = pubKey.getPublicExponent().toByteArray();
+</span><span class='line'>      //生成公钥
+</span><span class='line'>      RSAPublicKey recoveryPubKey = this.generateRSAPublicKey(pubModBytes,pubPubExpBytes);
+</span><span class='line'>      return recoveryPubKey;
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>   * 获取私钥
+</span><span class='line'>   * @return
+</span><span class='line'>   * @throws Exception 
+</span><span class='line'>   */
+</span><span class='line'>  public RSAPrivateKey getRSAPrivateKey() throws Exception{
+</span><span class='line'>      //获取私钥
+</span><span class='line'>      RSAPrivateKey priKey = (RSAPrivateKey) keyPair.getPrivate();
+</span><span class='line'>      //返回私钥系数(字节数组形式)
+</span><span class='line'>      byte[] priModBytes = priKey.getModulus().toByteArray();
+</span><span class='line'>      //返回私钥专用指数(字节数组形式)
+</span><span class='line'>      byte[] priPriExpBytes = priKey.getPrivateExponent().toByteArray();
+</span><span class='line'>      //生成私钥
+</span><span class='line'>      RSAPrivateKey recoveryPriKey = this.generateRSAPrivateKey(priModBytes,priPriExpBytes);
+</span><span class='line'>      return recoveryPriKey;
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>测试代码:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>     try {
+</span><span class='line'>          RSAUtil rsa = new RSAUtil();
+</span><span class='line'>          String str = "yanzi1225627";
+</span><span class='line'>          RSAPublicKey pubKey = rsa.getRSAPublicKey();
+</span><span class='line'>          RSAPrivateKey priKey = rsa.getRSAPrivateKey();
+</span><span class='line'>          byte[] enRsaBytes = rsa.encrypt(pubKey,str.getBytes());
+</span><span class='line'>          String enRsaStr = new String(enRsaBytes, "UTF-8");
+</span><span class='line'>          System.out.println("加密后==" + enRsaStr);
+</span><span class='line'>          System.out.println("解密后==" + new String(rsa.decrypt(priKey, rsa.encrypt(pubKey,str.getBytes()))));
+</span><span class='line'>      } catch (Exception e) {
+</span><span class='line'>          // TODO Auto-generated catch block
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面是执行结果:
+加密后==s?ko?1@lo????BJ?iE???1Ux?Kx&amp;??=??nO? ?l?>?????2r?y??8v-  \A??`????r?t3?-3y?hjL?M??Se?Z???????~?&ldquo;??e??XZ?苜?
+解密后==yanzi1225627
+上面代码需要用到一个包rsa.jar,下载链接及上面的测试代码我已打包，下载链接见下：
+<a href="http://download.csdn.net/detail/yanzi1225627/7382263">http://download.csdn.net/detail/yanzi1225627/7382263</a></p>
+
+<blockquote><p>原文引自<a href="http://blog.csdn.net/yanzi1225627/article/details/26508035">http://blog.csdn.net/yanzi1225627/article/details/26508035</a></p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/15/android13/">实现扫描二维码和生成带logo的二维码</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-15T19:44:46+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:44 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<p>今天讲的是如何引用google的zxing库实现扫描二维码和生成带logo的二维码,源码库可以从github上下载[<a href="https://github.com/zxing/zxing">https://github.com/zxing/zxing</a>];在文章结尾也会分享我的Demo</p>
+
+<h5>扫描二维码</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  Intent startScan = new Intent(MainActivity.this,CaptureActivity.class);
+</span><span class='line'>      startActivity(startScan);</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>生成不带logo的二维码</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  String in = input.getText().toString();
+</span><span class='line'>                if (in.equals("")) {
+</span><span class='line'>                    Toast.makeText(MainActivity.this, "请输入文本", Toast.LENGTH_SHORT).show();
+</span><span class='line'>                }
+</span><span class='line'>                try {
+</span><span class='line'>
+</span><span class='line'>//TODO 也可以生成二维码
+</span><span class='line'>//                    Bitmap qrcod = EncodingHandler.createQRCode(in, 400);
+</span><span class='line'>//                    img.setImageBitmap(qrcod);
+</span><span class='line'>                    // 写入数据信息到图片
+</span><span class='line'>                    int width = 400, height = 400;
+</span><span class='line'>                    QRCodeWriter writer = new QRCodeWriter();
+</span><span class='line'>
+</span><span class='line'>                    //把内容编码
+</span><span class='line'>                    BitMatrix matrix = writer.encode(in, BarcodeFormat.QR_CODE, width, height);
+</span><span class='line'>                    int ms[] = new int[width * height];
+</span><span class='line'>                    //变换赋值
+</span><span class='line'>                    for (int y = 0; y &lt; height; y++) {
+</span><span class='line'>                        for (int x = 0; x &lt; width; x++) {
+</span><span class='line'>                            if (matrix.get(x, y)) {
+</span><span class='line'>                                //黑点
+</span><span class='line'>                                ms[y * width + x] = 0xff000000;
+</span><span class='line'>                            } else {
+</span><span class='line'>                                //白点
+</span><span class='line'>                                ms[y * width + x] = 0xffffffff;
+</span><span class='line'>                            }
+</span><span class='line'>                        }
+</span><span class='line'>                    }
+</span><span class='line'>                    //TODO 缓存
+</span><span class='line'>                    Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+</span><span class='line'>                    image.setPixels(ms, 0, width, 0, 0, width, height);
+</span><span class='line'>                    //TODO 展示图片
+</span><span class='line'>                    img.setImageBitmap(image);
+</span><span class='line'>                    FileOutputStream out = new FileOutputStream("/sdcard/code2.png");
+</span><span class='line'>                    //TODO 压缩
+</span><span class='line'>                    image.compress(Bitmap.CompressFormat.PNG, 100, out);
+</span><span class='line'>                    Log.e("MMMM", "创建成功");
+</span><span class='line'>                } catch (WriterException e) {
+</span><span class='line'>                    e.printStackTrace();
+</span><span class='line'>                } catch (FileNotFoundException e) {
+</span><span class='line'>                    e.printStackTrace();
+</span><span class='line'>                }
+</span><span class='line'>            }</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>带logo的二维码</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> //Todo 带logo的二维码
+</span><span class='line'>    @Override
+</span><span class='line'>    public void onClick(View v) {
+</span><span class='line'>
+</span><span class='line'>        String in = input.getText().toString();
+</span><span class='line'>        if (in.equals("")) {
+</span><span class='line'>            Toast.makeText(MainActivity.this, "请输入文本", Toast.LENGTH_SHORT).show();
+</span><span class='line'>        }
+</span><span class='line'>        try {
+</span><span class='line'>            // 写入数据信息到图片
+</span><span class='line'>            int width = 400, height = 400;
+</span><span class='line'>            QRCodeWriter writer = new QRCodeWriter();
+</span><span class='line'>            //把内容编码
+</span><span class='line'>            BitMatrix matrix = writer.encode(in, BarcodeFormat.QR_CODE, width, height);
+</span><span class='line'>            int ms[] = new int[width * height];
+</span><span class='line'>            //变换赋值
+</span><span class='line'>            for (int y = 0; y &lt; height; y++) {
+</span><span class='line'>                for (int x = 0; x &lt; width; x++) {
+</span><span class='line'>                    if (matrix.get(x, y)) {
+</span><span class='line'>                        //黑点
+</span><span class='line'>                        ms[y * width + x] = 0xff000000;
+</span><span class='line'>                    } else {
+</span><span class='line'>                        //白点
+</span><span class='line'>                        ms[y * width + x] = 0xffffffff;
+</span><span class='line'>                    }
+</span><span class='line'>
+</span><span class='line'>                }
+</span><span class='line'>
+</span><span class='line'>            }
+</span><span class='line'>            //TODO 缓存
+</span><span class='line'>            Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+</span><span class='line'>            image.setPixels(ms, 0, width, 0, 0, width, height);
+</span><span class='line'>            //logo地址
+</span><span class='line'>            Bitmap logo = BitmapFactory.decodeFile("/sdcard/gur03.png");
+</span><span class='line'>            image = insertLogo(image, logo);
+</span><span class='line'>            //TODO 展示图片
+</span><span class='line'>            img.setImageBitmap(image);
+</span><span class='line'>            //存储生成的二维码地址
+</span><span class='line'>            FileOutputStream out = new FileOutputStream("/sdcard/code2.png");
+</span><span class='line'>            //TODO 压缩
+</span><span class='line'>            image.compress(Bitmap.CompressFormat.PNG, 100, out);
+</span><span class='line'>            Log.e("MMMM", "创建成功");
+</span><span class='line'>
+</span><span class='line'>        } catch (WriterException e) {
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        } catch (FileNotFoundException e) {
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    public Bitmap insertLogo(Bitmap src, Bitmap logo) {
+</span><span class='line'>        // 获取到两张图片的宽高
+</span><span class='line'>        int width = src.getWidth();
+</span><span class='line'>        int height = src.getHeight();
+</span><span class='line'>        int gwidth = logo.getWidth();
+</span><span class='line'>        int gheight = logo.getHeight();
+</span><span class='line'>        // 大小图片的比例
+</span><span class='line'>        float scale = width * 1.0f / 5 / gwidth;
+</span><span class='line'>        // 工作缓冲区
+</span><span class='line'>        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+</span><span class='line'>        // 获取缓冲区的画布
+</span><span class='line'>        Canvas ca = new Canvas(bitmap);
+</span><span class='line'>        // 话大图片
+</span><span class='line'>        ca.drawBitmap(src, 0, 0, null);
+</span><span class='line'>        ca.scale(scale, scale, width / 2, height / 2);
+</span><span class='line'>        // 话小图片
+</span><span class='line'>        ca.drawBitmap(logo, (width - gwidth) / 2, (height - gheight) / 2, null);
+</span><span class='line'>        // 保存所画内容
+</span><span class='line'>        ca.save(Canvas.ALL_SAVE_FLAG);
+</span><span class='line'>        // 还原画布
+</span><span class='line'>        ca.restore();
+</span><span class='line'>        return bitmap;
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意利用画布将图片覆盖在生成的二维码上,图片是30*30的,
+原理是二维码中间有可以忽略的阴影
+app引用BarCodeTest类库
+Demo下载地址:<a href="https://github.com/MyfengNull/QrCode">https://github.com/MyfengNull/QrCode</a></p>
+
+<blockquote><p>本文原创下载请注明出处</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/23/android12/">Android中Socket通信</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-23T19:24:35+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>7:24 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>Android中Socket通信</h3>
+
+<p> <strong>Socket链接的建立过程 </strong></p>
+
+<ul>
+<li><strong>1服务器监听</strong></li>
+<li><strong>2客户端发出请求</strong></li>
+<li><strong>3建立链接</strong></li>
+<li><strong>4通信</strong></li>
+</ul>
+
+
+<p> <strong>Socket特点 </strong></p>
+
+<ul>
+<li><strong>1Socket基于TCP链接,数据传输有保障</strong></li>
+<li><strong>2适用于建立长时间链接</strong></li>
+<li><strong>3Socket编程常应用于即时通讯</strong></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/15/android9/">实现左右点击图片预览</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-15T16:59:34+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>实现左右点击图片预览</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public class MainActivity extends Activity {
+</span><span class='line'>  private ImageView iv;
+</span><span class='line'>  int img_[] = new int[] { R.drawable.img_1, R.drawable.img_2,
+</span><span class='line'>          R.drawable.img_3, R.drawable.img_4, R.drawable.img_5,
+</span><span class='line'>          R.drawable.img_6, R.drawable.img_7, R.drawable.img_8,
+</span><span class='line'>          R.drawable.img_9, };
+</span><span class='line'>  int count = 0;
+</span><span class='line'>
+</span><span class='line'>  @Override
+</span><span class='line'>  protected void onCreate(Bundle savedInstanceState) {
+</span><span class='line'>      super.onCreate(savedInstanceState);
+</span><span class='line'>      setContentView(R.layout.activity_main);
+</span><span class='line'>
+</span><span class='line'>      final int width = this.getWindowManager().getDefaultDisplay()
+</span><span class='line'>              .getWidth();
+</span><span class='line'>      iv = (ImageView) findViewById(R.id.imageView1);
+</span><span class='line'>      iv.setOnTouchListener(new View.OnTouchListener() {
+</span><span class='line'>          @Override
+</span><span class='line'>          public boolean onTouch(View v, MotionEvent event) {
+</span><span class='line'>              ImageView view = (ImageView) v;
+</span><span class='line'>              int x = (int) event.getX();
+</span><span class='line'>              if (x &gt;= (width / 2)) {
+</span><span class='line'>                  if (count == 8) {
+</span><span class='line'>                      count = -1;
+</span><span class='line'>                  }
+</span><span class='line'>                  view.setImageResource(img_[++count]);
+</span><span class='line'>              } else {
+</span><span class='line'>                  if (x &lt; (width / 2)) {
+</span><span class='line'>                      if (count == 0) {
+</span><span class='line'>                          count = 9;
+</span><span class='line'>                      }
+</span><span class='line'>                      view.setImageResource(img_[--count]);
+</span><span class='line'>                  }
+</span><span class='line'>              }
+</span><span class='line'>              return false;
+</span><span class='line'>          }
+</span><span class='line'>      });
+</span><span class='line'>
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/02/android8/">判断sdCard是否挂载</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-02T16:54:58+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>4:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>判断sdCard是否挂载</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public class FileUtils {
+</span><span class='line'>  
+</span><span class='line'>  /**
+</span><span class='line'>   * 判断sdCard是否挂载
+</span><span class='line'>   * @return
+</span><span class='line'>   */
+</span><span class='line'>  public static boolean isConnSdCard(){
+</span><span class='line'>      if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+</span><span class='line'>          return true;
+</span><span class='line'>      }
+</span><span class='line'>      return false;
+</span><span class='line'>  }
+</span><span class='line'>  /**
+</span><span class='line'>   * 将图片的字节数组保存到  sd卡上
+</span><span class='line'>   * @return
+</span><span class='line'>   */
+</span><span class='line'>  public static boolean writeToSdcard(byte[] buffer ,String imagName){
+</span><span class='line'>      FileOutputStream outputStream =null;
+</span><span class='line'>      
+</span><span class='line'>      boolean flag = false;
+</span><span class='line'>      
+</span><span class='line'>      String fileName = imagName.substring(imagName.lastIndexOf("/")+1);
+</span><span class='line'>      File file = new File(Environment.
+</span><span class='line'>              getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+</span><span class='line'>              fileName);
+</span><span class='line'>      try {
+</span><span class='line'>          
+</span><span class='line'>          outputStream = new FileOutputStream(file);
+</span><span class='line'>          outputStream.write(buffer);
+</span><span class='line'>          flag = true;
+</span><span class='line'>      } catch (FileNotFoundException e) {
+</span><span class='line'>          // TODO Auto-generated catch block
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      } catch (IOException e) {
+</span><span class='line'>          // TODO Auto-generated catch block
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      }finally{
+</span><span class='line'>          if(outputStream!=null){
+</span><span class='line'>              try {
+</span><span class='line'>                  outputStream.close();
+</span><span class='line'>              } catch (IOException e) {
+</span><span class='line'>                  // TODO Auto-generated catch block
+</span><span class='line'>                  e.printStackTrace();
+</span><span class='line'>              }
+</span><span class='line'>          }
+</span><span class='line'>      }
+</span><span class='line'>      
+</span><span class='line'>      return flag;
+</span><span class='line'>      
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/08/android7/">判断是否有网络</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-08T16:44:28+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:44 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>Android判断是否有网络</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public class HttpUtils {
+</span><span class='line'>  /**
+</span><span class='line'>   * 判断是否有网络
+</span><span class='line'>   * @param context
+</span><span class='line'>   * @return
+</span><span class='line'>   */
+</span><span class='line'>  public static boolean isNetWork(Context context){
+</span><span class='line'>      //得到网络的管理者
+</span><span class='line'>      ConnectivityManager manager = (ConnectivityManager) 
+</span><span class='line'>              context.getSystemService(Context.CONNECTIVITY_SERVICE);
+</span><span class='line'>      NetworkInfo info = manager.getActiveNetworkInfo();
+</span><span class='line'>      
+</span><span class='line'>      if(info!=null){
+</span><span class='line'>          return true;
+</span><span class='line'>                  
+</span><span class='line'>      }else{
+</span><span class='line'>          return false;
+</span><span class='line'>      }
+</span><span class='line'>      
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  
+</span><span class='line'>  /**
+</span><span class='line'>   * 获取数据
+</span><span class='line'>   * @param path
+</span><span class='line'>   * @return
+</span><span class='line'>   */
+</span><span class='line'>  public static byte[] getData(String path) {
+</span><span class='line'>      HttpClient httpClient = new DefaultHttpClient();
+</span><span class='line'>      HttpGet httpGet = new HttpGet(path);
+</span><span class='line'>      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+</span><span class='line'>      try {
+</span><span class='line'>          HttpResponse response = httpClient.execute(httpGet);
+</span><span class='line'>          if (response.getStatusLine().getStatusCode() == 200) {
+</span><span class='line'>              InputStream inputStream = response.getEntity().getContent();
+</span><span class='line'>              byte[] buffer = new byte[1024];
+</span><span class='line'>              int temp = 0;
+</span><span class='line'>              while ((temp = inputStream.read(buffer)) != -1) {
+</span><span class='line'>                  outputStream.write(buffer, 0, temp);
+</span><span class='line'>                  outputStream.flush();
+</span><span class='line'>              }
+</span><span class='line'>
+</span><span class='line'>          }
+</span><span class='line'>          return outputStream.toByteArray();
+</span><span class='line'>
+</span><span class='line'>      } catch (ClientProtocolException e) {
+</span><span class='line'>          // TODO Auto-generated catch block
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      } catch (IOException e) {
+</span><span class='line'>          // TODO Auto-generated catch block
+</span><span class='line'>          e.printStackTrace();
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      return null;
+</span><span class='line'>
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/06/android6/">重写listview,使其嵌套scrollview</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-06T16:40:49+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:40 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>重写listview,使其嵌套scrollview</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import android.content.Context;
+</span><span class='line'>import android.util.AttributeSet;
+</span><span class='line'>import android.widget.ListView;
+</span><span class='line'>
+</span><span class='line'>public class ListViewForScrollView extends ListView {
+</span><span class='line'>  public ListViewForScrollView(Context context) {
+</span><span class='line'>      super(context);
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  public ListViewForScrollView(Context context, AttributeSet attrs) {
+</span><span class='line'>      super(context, attrs);
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  public ListViewForScrollView(Context context, AttributeSet attrs, int defStyle) {
+</span><span class='line'>      super(context, attrs, defStyle);
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  /**
+</span><span class='line'>  * 重写该方法，达到使ListView适应ScrollView的效果
+</span><span class='line'>  */
+</span><span class='line'>  @Override
+</span><span class='line'>  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+</span><span class='line'>      int expandSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE &gt;&gt; 2,  MeasureSpec.AT_MOST);
+</span><span class='line'>      super.onMeasure(widthMeasureSpec, expandSpec);
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/21/android5/">Px,dip(dp),sp,dpi,分辨率详解</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-21T16:26:34+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>4:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>px,dip(dp),sp,dpi,分辨率详解</h3>
+
+<p>1.px (pixels)像素: 是像素，就是屏幕上实际的像素点单位。
+ dip或dp (device independent pixels)设备独立像素， 与设备屏幕有关。
+ sp (scaled pixels : best for text size)：类似dp， 主要处理字体的大小。
+dpi(dot per inch):屏幕像素密度，每英寸多少像素</p>
+
+<p>density：density表示每英寸有多少个显示点(逻辑值)，它的单位是dpi</p>
+
+<p>2.dpi是屏幕像素密度。就是1英寸上像素点的个数。对于屏幕来说，dpi越大，屏幕的精细度越高，屏幕看起来就越清楚。比如iphone4的视网膜级的屏幕肯定比iphone 3gs的屏幕像素密度高的多。</p>
+
+<p>3.sp由于是放大像素，主要是用于字体显示，由此根据google的建议，TextView的字体大小最好用sp做单位</p>
+
+<p>4.dp是与密度无关，sp除了与密度无关外，还与scale无关。如果屏幕密度为160，这时dp和sp和px是一样的。1dp=1sp=1px，但如果使用px作单位，如果屏幕大小不变（假设还是3.2寸），而屏幕密度变成了320。那么原来TextView的宽度设成160px，在密度为320的3.2寸屏幕里看要比在密度为160的3.2寸屏幕上看短了一半。但如果设置成160dp或160sp的话。系统会自动将width属性值设置成320px的。也就是160 * 320 / 160。其中320 / 160可称为密度比例因子。也就是说，如果使用dp和sp，系统会根据屏幕密度的变化自动进行转换。</p>
+
+<p>5.dip值 =（dpi值/160）* pixel值</p>
+
+<p>6.像素密度和分辨率是两个不同的概念，分辨率是总的像素点，像素密度是单位长度的像素点</p>
+
+<p>HVGA屏density=160；QVGA屏density=120；WVGA屏density=240；WQVGA屏density=120</p>
+
+<p>VGA：Video Graphics Array，即：显示绘图矩阵，相当于640×480
+HVGA：Half-size VGA；即：VGA的一半，分辨率为480×320；</p>
+
+<p>QVGA：Quarter VGA；即：VGA的四分之一，分辨率为320×240；</p>
+
+<p>WVGA：Wide Video Graphics Array；即：扩大的VGA，分辨率为800×480像素；</p>
+
+<p>WQVGA：Wide Quarter VGA；即：扩大的QVGA，分辨率比QVGA高，比VGA低，一般是：400×240，480×272</p>
+
+<hr />
+
+<p>px   ：是屏幕的像素点
+in    ：英寸
+mm ：毫米
+pt    ：磅，1/72 英寸
+dp   ：一个基于density的抽象单位，如果一个160dpi的屏幕，1dp=1px
+dip  ：等同于dp
+sp   ：同dp相似，但还会根据用户的字体大小偏好来缩放。
+建议使用sp作为文本的单位，其它用dip
+针对dip和px 的关系，做以下概述：
+QVGA屏density=120；          QVGA（240<em>320）
+HVGA屏density=160；          HVGA（320</em>480）
+WVGA屏density=240；         WVGA（480<em>800）
+WQVGA屏density=120          WQVGA（240</em>400）
+density值表示每英寸有多少个显示点，与分辨率是两个概念。
+不同density下屏幕分辨率信息，以480dip<em>800dip的 WVGA(density=240)为例
+density=120时
+屏幕实际分辨率为240px</em>400px （两个点对应一个分辨率）
+状态栏和标题栏高各19px或者25dip
+横屏是屏幕宽度400px 或者800dip,工作区域高度211px或者480dip
+竖屏时屏幕宽度240px或者480dip,工作区域高度381px或者775dip</p>
+
+<p>density=160时
+屏幕实际分辨率为320px*533px （3个点对应两个分辨率）
+状态栏和标题栏高个25px或者25dip
+横屏是屏幕宽度533px 或者800dip,工作区域高度295px或者480dip
+竖屏时屏幕宽度320px或者480dip,工作区域高度508px或者775dip</p>
+
+<p>density=240时
+屏幕实际分辨率为480px*800px （一个点对于一个分辨率）
+状态栏和标题栏高个38px或者25dip
+横屏是屏幕宽度800px 或者800dip,工作区域高度442px或者480dip
+竖屏时屏幕宽度480px或者480dip,工作区域高度762px或者775dip</p>
+
+<p>apk的资源包中
+当屏幕density=240时，使用hdpi 标签的资源
+当屏幕density=160时，使用mdpi标签的资源
+当屏幕density=120时，使用ldpi标签的资源。
+不加任何标签的资源是各种分辨率情况下共用的。
+布局时尽量使用单位dip，少使用px</p>
+
+<p>dp与px换算公式：</p>
+
+<p>$$  pixs =dips * (densityDpi/160)$$
+$$  dips=(pixs*160)/densityDpi$$</p>
+
+<p>dp这个单位可能对web开发的人比较陌生,因为一般都是使用px(像素)
+但是,现在在开始android应用和游戏后,基本上都转换成用dp作用为单位了,因为可以支持多种分辨率的手机.</p>
+
+<p>以下是这两个单位的概念:
+px (pixels)像素: 一个像素通常被视为图像的最小的完整采样，这个用的比较多,特别是web开发,页面基本都是使用像素作为单位的.
+dip或dp (device independent pixels)设备独立像素 ― 这个和设备硬件有关，一般我们为了支持手机上多种分辨率,如WVGA、HVGA和QVGA,都会使用dip作为长度的单位
+在Android开发我们一般都可以不需要使用px的,但是某一些控件的属性没有直接支持dip,像下面的代码</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>android.view.ViewGroup.LayoutParams.height
+</span><span class='line'>android.view.ViewGroup.LayoutParams.width</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上面这两个属性的单位为像素,但是为了兼容多种分辨率的手机,我们需要最好使用dip,时候我们可以调用以下的代码进行转换.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>int heightPx= DisplayUtil.dip2px(this, 33);
+</span><span class='line'>mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = heightPx;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上代码可以在我另一篇文章看得到.该功能是设置Tab的高度,单位是像素.以上的单位转换是为了支持多分辨率手机的.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public static int dip2px(Context context, float dpValue) {
+</span><span class='line'>  final float scale = context.getResources().getDisplayMetrics().density;
+</span><span class='line'>  return (int) (dpValue * scale + 0.5f);
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>public static int px2dip(Context context, float pxValue) {
+</span><span class='line'>  final float scale = context.getResources().getDisplayMetrics().density;
+</span><span class='line'>  return (int) (pxValue / scale + 0.5f);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/15/android4/">Android常用代码4</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-15T16:07:56+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:07 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<p>-<strong>设置全屏的方法</strong></p>
+
+<p>-<strong>添加自定义控件属性</strong></p>
+
+<h3>设置全屏的方法</h3>
+
+<p>在java代码中设置，需要将代码放在setContentView()之前</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//set no title bar
+</span><span class='line'>requestWindowFeature(Window.FEATURE_NO_TITLE);
+</span><span class='line'>//set to full screen
+</span><span class='line'>getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在AndroidManifest.xml中配置</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>添加自定义控件属性</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. 在res/values文件下定义一个attrs.xml文件.代码如下: 
+</span><span class='line'>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+</span><span class='line'>&lt;resources&gt;
+</span><span class='line'>        
+</span><span class='line'>    &lt;declare-styleable name="MyCustomAttr"&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: reference：参考某一资源ID 
+</span><span class='line'>          使用：Customxmlns:AttrBackground = "@drawable/..."
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="AttrBackground" format="reference" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: color：颜色值
+</span><span class='line'>          使用：Customxmlns:AttrColor = "@color/..."
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="AttrColor" format="color" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: boolean：布尔值
+</span><span class='line'>          使用：Customxmlns:CustomBoolean = "true"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomBoolean" format="boolean" /&gt;      
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: dimension：尺寸值
+</span><span class='line'>          使用：Customxmlns:CustomDimension = "100dip"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomDimension" format="dimension" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: float：浮点值
+</span><span class='line'>          使用：Customxmlns:CustomFloat = "0.8"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomFloat" format="float" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: integer：整型值
+</span><span class='line'>          使用：Customxmlns:CustomInteger = "100"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomInteger" format="integer" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: string：字符串
+</span><span class='line'>          使用：Customxmlns:CustomString = "@string/..."
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name = "CustomString" format="string" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: fraction：百分数
+</span><span class='line'>          使用：Customxmlns:CustomFraction = "50%"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name = "CustomFraction" format="fraction" /&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明: enum：枚举值
+</span><span class='line'>          使用：Customxmlns:CustomOrientation = "vertical"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomOrientation"&gt;
+</span><span class='line'>          &lt;enum name="horizontal" value="0" /&gt;
+</span><span class='line'>            &lt;enum name="vertical" value="1" /&gt;
+</span><span class='line'>        &lt;/attr&gt;    
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明:  flag：位或运算
+</span><span class='line'>          使用：Customxmlns:CustomWindowSoftInputMode = "stateUnspecified | stateUnchanged"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomWindowSoftInputMode"&gt;
+</span><span class='line'>          &lt;flag name="stateUnspecified" value="0" /&gt;
+</span><span class='line'>            &lt;flag name="stateUnchanged" value="1" /&gt;
+</span><span class='line'>            &lt;flag name="stateHidden" value="2" /&gt;
+</span><span class='line'>        &lt;/attr&gt;
+</span><span class='line'>        
+</span><span class='line'>        &lt;!-- 
+</span><span class='line'>          说明:  属性定义时可以指定多种类型值
+</span><span class='line'>          使用：Customxmlns:CustomBackground = "@drawable/图片ID|#00FF00"
+</span><span class='line'>        --&gt;
+</span><span class='line'>        &lt;attr name="CustomBackground" format="reference|color" /&gt;
+</span><span class='line'>        
+</span><span class='line'>    &lt;/declare-styleable&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;/resources&gt;
+</span><span class='line'>
+</span><span class='line'>2. 在布局xml中如下使用该属性(其中com.customattrs为包名):
+</span><span class='line'>&lt;com.customattrs.MyCustomView
+</span><span class='line'>        xmlns:canremovechild="http://schemas.android.com/apk/res/com.customattrs"
+</span><span class='line'>        android:layout_width="match_parent"
+</span><span class='line'>        android:layout_height="match_parent"
+</span><span class='line'>        canremovechild:CustomBoolean="true" /&gt;
+</span><span class='line'>
+</span><span class='line'>3. 在自定义组件中，可以如下获得xml中定义的值:
+</span><span class='line'>在MyCustomView.java中的构造函数中：
+</span><span class='line'>public MyCustomView(Context context, AttributeSet attrs) {
+</span><span class='line'>  super(context, attrs);
+</span><span class='line'>      
+</span><span class='line'>  TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MyCustomAttr);
+</span><span class='line'>  boolean canRemoveChild = a.getBoolean(R.styleable.MyCustomAttr_CustomBoolean, false);
+</span><span class='line'>  a.recycle();
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/30/android10/">Listview优化</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-30T21:05:52+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<h3>listview优化</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> @Override
+</span><span class='line'>    public View getView(int position, View convertView, ViewGroup parent) {
+</span><span class='line'>//        LayoutInflater inflater = LayoutInflater.from(context);
+</span><span class='line'>//        layout = (LinearLayout) inflater.inflate(R.layout.item, null);
+</span><span class='line'>//        TextView tvName = (TextView) layout.findViewById(R.id.tvName);
+</span><span class='line'>//        TextView tvNumber = (TextView) layout.findViewById(R.id.tvNumber);
+</span><span class='line'>//        tvName.setText(list.get(position).getName());
+</span><span class='line'>//        tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>        //listview优化
+</span><span class='line'>        ViewHolder holder;
+</span><span class='line'>        if (convertView == null) {
+</span><span class='line'>            convertView = LayoutInflater.from(context).inflate(R.layout.item, null);
+</span><span class='line'>            holder = new ViewHolder();
+</span><span class='line'>            holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
+</span><span class='line'>            holder.tvNumber = (TextView) convertView.findViewById(R.id.tvNumber);
+</span><span class='line'>            holder.tvName.setText(list.get(position).getName());
+</span><span class='line'>            holder.tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>            convertView.setTag(holder);
+</span><span class='line'>        } else {
+</span><span class='line'>            holder = (ViewHolder) convertView.getTag();
+</span><span class='line'>            holder.tvName.setText(list.get(position).getName());
+</span><span class='line'>            holder.tvNumber.setText(list.get(position).getNumber());
+</span><span class='line'>        }
+</span><span class='line'>//return layout
+</span><span class='line'>        return convertView;
+</span><span class='line'>    }
+</span><span class='line'>    private static class ViewHolder{
+</span><span class='line'>        TextView tvName;
+</span><span class='line'>        TextView tvNumber;
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
+    
+      <a class="prev" href="/posts/2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -77,6 +1983,26 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/05/android11/">Android网络传输中必用的两个加密算法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/15/android13/">实现扫描二维码和生成带logo的二维码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/23/android12/">Android中Socket通信</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/15/android9/">实现左右点击图片预览</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/02/android8/">判断sdCard是否挂载</a>
+      </li>
     
   </ul>
 </section>
@@ -91,7 +2017,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - Your Name -
+  Copyright &copy; 2016 - YangShirong -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
@@ -103,16 +2029,6 @@
 
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

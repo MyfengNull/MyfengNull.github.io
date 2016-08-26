@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Httpclient | Feng Blog]]></title>
+  <link href="http://myfengnull.github.io/blog/categories/httpclient/atom.xml" rel="self"/>
+  <link href="http://myfengnull.github.io/"/>
+  <updated>2016-08-26T15:01:27+08:00</updated>
+  <id>http://myfengnull.github.io/</id>
+  <author>
+    <name><![CDATA[YangShirong]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[判断是否有网络]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/05/08/android7/"/>
+    <updated>2015-05-08T16:44:28+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/05/08/android7</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<h3>Android判断是否有网络</h3>
+
+<pre><code>public class HttpUtils {
+    /**
+     * 判断是否有网络
+     * @param context
+     * @return
+     */
+    public static boolean isNetWork(Context context){
+        //得到网络的管理者
+        ConnectivityManager manager = (ConnectivityManager) 
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = manager.getActiveNetworkInfo();
+
+        if(info!=null){
+            return true;
+
+        }else{
+            return false;
+        }
+
+    }
+
+
+    /**
+     * 获取数据
+     * @param path
+     * @return
+     */
+    public static byte[] getData(String path) {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(path);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            HttpResponse response = httpClient.execute(httpGet);
+            if (response.getStatusLine().getStatusCode() == 200) {
+                InputStream inputStream = response.getEntity().getContent();
+                byte[] buffer = new byte[1024];
+                int temp = 0;
+                while ((temp = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, temp);
+                    outputStream.flush();
+                }
+
+            }
+            return outputStream.toByteArray();
+
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

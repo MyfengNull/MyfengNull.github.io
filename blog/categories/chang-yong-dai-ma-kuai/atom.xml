@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 常用代码块 | Feng Blog]]></title>
+  <link href="http://myfengnull.github.io/blog/categories/chang-yong-dai-ma-kuai/atom.xml" rel="self"/>
+  <link href="http://myfengnull.github.io/"/>
+  <updated>2016-08-26T15:01:27+08:00</updated>
+  <id>http://myfengnull.github.io/</id>
+  <author>
+    <name><![CDATA[YangShirong]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[重写listview,使其嵌套scrollview]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/05/06/android6/"/>
+    <updated>2015-05-06T16:40:49+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/05/06/android6</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<h3>重写listview,使其嵌套scrollview</h3>
+
+<pre><code>import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.ListView;
+
+public class ListViewForScrollView extends ListView {
+    public ListViewForScrollView(Context context) {
+        super(context);
+    }
+
+    public ListViewForScrollView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ListViewForScrollView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    /**
+    * 重写该方法，达到使ListView适应ScrollView的效果
+    */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int expandSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE &gt;&gt; 2,    MeasureSpec.AT_MOST);
+        super.onMeasure(widthMeasureSpec, expandSpec);
+    }
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Px,dip(dp),sp,dpi,分辨率详解]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/03/21/android5/"/>
+    <updated>2015-03-21T16:26:34+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/03/21/android5</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<h3>px,dip(dp),sp,dpi,分辨率详解</h3>
+
+<p>1.px (pixels)像素: 是像素，就是屏幕上实际的像素点单位。
+ dip或dp (device independent pixels)设备独立像素， 与设备屏幕有关。
+ sp (scaled pixels : best for text size)：类似dp， 主要处理字体的大小。
+dpi(dot per inch):屏幕像素密度，每英寸多少像素</p>
+
+<p>density：density表示每英寸有多少个显示点(逻辑值)，它的单位是dpi</p>
+
+<p>2.dpi是屏幕像素密度。就是1英寸上像素点的个数。对于屏幕来说，dpi越大，屏幕的精细度越高，屏幕看起来就越清楚。比如iphone4的视网膜级的屏幕肯定比iphone 3gs的屏幕像素密度高的多。</p>
+
+<p>3.sp由于是放大像素，主要是用于字体显示，由此根据google的建议，TextView的字体大小最好用sp做单位</p>
+
+<p>4.dp是与密度无关，sp除了与密度无关外，还与scale无关。如果屏幕密度为160，这时dp和sp和px是一样的。1dp=1sp=1px，但如果使用px作单位，如果屏幕大小不变（假设还是3.2寸），而屏幕密度变成了320。那么原来TextView的宽度设成160px，在密度为320的3.2寸屏幕里看要比在密度为160的3.2寸屏幕上看短了一半。但如果设置成160dp或160sp的话。系统会自动将width属性值设置成320px的。也就是160 * 320 / 160。其中320 / 160可称为密度比例因子。也就是说，如果使用dp和sp，系统会根据屏幕密度的变化自动进行转换。</p>
+
+<p>5.dip值 =（dpi值/160）* pixel值</p>
+
+<p>6.像素密度和分辨率是两个不同的概念，分辨率是总的像素点，像素密度是单位长度的像素点</p>
+
+<p>HVGA屏density=160；QVGA屏density=120；WVGA屏density=240；WQVGA屏density=120</p>
+
+<p>VGA：Video Graphics Array，即：显示绘图矩阵，相当于640×480
+HVGA：Half-size VGA；即：VGA的一半，分辨率为480×320；</p>
+
+<p>QVGA：Quarter VGA；即：VGA的四分之一，分辨率为320×240；</p>
+
+<p>WVGA：Wide Video Graphics Array；即：扩大的VGA，分辨率为800×480像素；</p>
+
+<p>WQVGA：Wide Quarter VGA；即：扩大的QVGA，分辨率比QVGA高，比VGA低，一般是：400×240，480×272</p>
+
+<hr />
+
+<p>px   ：是屏幕的像素点
+in    ：英寸
+mm ：毫米
+pt    ：磅，1/72 英寸
+dp   ：一个基于density的抽象单位，如果一个160dpi的屏幕，1dp=1px
+dip  ：等同于dp
+sp   ：同dp相似，但还会根据用户的字体大小偏好来缩放。
+建议使用sp作为文本的单位，其它用dip
+针对dip和px 的关系，做以下概述：
+QVGA屏density=120；          QVGA（240<em>320）
+HVGA屏density=160；          HVGA（320</em>480）
+WVGA屏density=240；         WVGA（480<em>800）
+WQVGA屏density=120          WQVGA（240</em>400）
+density值表示每英寸有多少个显示点，与分辨率是两个概念。
+不同density下屏幕分辨率信息，以480dip<em>800dip的 WVGA(density=240)为例
+density=120时
+屏幕实际分辨率为240px</em>400px （两个点对应一个分辨率）
+状态栏和标题栏高各19px或者25dip
+横屏是屏幕宽度400px 或者800dip,工作区域高度211px或者480dip
+竖屏时屏幕宽度240px或者480dip,工作区域高度381px或者775dip</p>
+
+<p>density=160时
+屏幕实际分辨率为320px*533px （3个点对应两个分辨率）
+状态栏和标题栏高个25px或者25dip
+横屏是屏幕宽度533px 或者800dip,工作区域高度295px或者480dip
+竖屏时屏幕宽度320px或者480dip,工作区域高度508px或者775dip</p>
+
+<p>density=240时
+屏幕实际分辨率为480px*800px （一个点对于一个分辨率）
+状态栏和标题栏高个38px或者25dip
+横屏是屏幕宽度800px 或者800dip,工作区域高度442px或者480dip
+竖屏时屏幕宽度480px或者480dip,工作区域高度762px或者775dip</p>
+
+<p>apk的资源包中
+当屏幕density=240时，使用hdpi 标签的资源
+当屏幕density=160时，使用mdpi标签的资源
+当屏幕density=120时，使用ldpi标签的资源。
+不加任何标签的资源是各种分辨率情况下共用的。
+布局时尽量使用单位dip，少使用px</p>
+
+<p>dp与px换算公式：</p>
+
+<p>$$  pixs =dips * (densityDpi/160)$$
+$$  dips=(pixs*160)/densityDpi$$</p>
+
+<p>dp这个单位可能对web开发的人比较陌生,因为一般都是使用px(像素)
+但是,现在在开始android应用和游戏后,基本上都转换成用dp作用为单位了,因为可以支持多种分辨率的手机.</p>
+
+<p>以下是这两个单位的概念:
+px (pixels)像素: 一个像素通常被视为图像的最小的完整采样，这个用的比较多,特别是web开发,页面基本都是使用像素作为单位的.
+dip或dp (device independent pixels)设备独立像素 ― 这个和设备硬件有关，一般我们为了支持手机上多种分辨率,如WVGA、HVGA和QVGA,都会使用dip作为长度的单位
+在Android开发我们一般都可以不需要使用px的,但是某一些控件的属性没有直接支持dip,像下面的代码
+<code>
+android.view.ViewGroup.LayoutParams.height
+android.view.ViewGroup.LayoutParams.width
+</code>
+上面这两个属性的单位为像素,但是为了兼容多种分辨率的手机,我们需要最好使用dip,时候我们可以调用以下的代码进行转换.
+<code>
+int heightPx= DisplayUtil.dip2px(this, 33);
+mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = heightPx;
+</code>
+以上代码可以在我另一篇文章看得到.该功能是设置Tab的高度,单位是像素.以上的单位转换是为了支持多分辨率手机的.
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public static int dip2px(Context context, float dpValue) {
+</span><span class='line'>    final float scale = context.getResources().getDisplayMetrics().density;
+</span><span class='line'>    return (int) (dpValue * scale + 0.5f);
+</span><span class='line'>}&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;public static int px2dip(Context context, float pxValue) {
+</span><span class='line'>    final float scale = context.getResources().getDisplayMetrics().density;
+</span><span class='line'>    return (int) (pxValue / scale + 0.5f);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android常用代码4]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/03/15/android4/"/>
+    <updated>2015-03-15T16:07:56+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/03/15/android4</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>-<strong>设置全屏的方法</strong></p>
+
+<p>-<strong>添加自定义控件属性</strong></p>
+
+<h3>设置全屏的方法</h3>
+
+<p>在java代码中设置，需要将代码放在setContentView()之前
+<code>
+//set no title bar
+requestWindowFeature(Window.FEATURE_NO_TITLE);
+//set to full screen
+getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+</code>
+在AndroidManifest.xml中配置
+<code>
+android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+</code></p>
+
+<h3>添加自定义控件属性</h3>
+
+<pre><code>1. 在res/values文件下定义一个attrs.xml文件.代码如下: 
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;resources&gt;
+
+    &lt;declare-styleable name="MyCustomAttr"&gt;
+
+        &lt;!-- 
+            说明: reference：参考某一资源ID 
+            使用：Customxmlns:AttrBackground = "@drawable/..."
+        --&gt;
+        &lt;attr name="AttrBackground" format="reference" /&gt;
+
+        &lt;!-- 
+            说明: color：颜色值
+            使用：Customxmlns:AttrColor = "@color/..."
+        --&gt;
+        &lt;attr name="AttrColor" format="color" /&gt;
+
+        &lt;!-- 
+            说明: boolean：布尔值
+            使用：Customxmlns:CustomBoolean = "true"
+        --&gt;
+        &lt;attr name="CustomBoolean" format="boolean" /&gt;      
+
+        &lt;!-- 
+            说明: dimension：尺寸值
+            使用：Customxmlns:CustomDimension = "100dip"
+        --&gt;
+        &lt;attr name="CustomDimension" format="dimension" /&gt;
+
+        &lt;!-- 
+            说明: float：浮点值
+            使用：Customxmlns:CustomFloat = "0.8"
+        --&gt;
+        &lt;attr name="CustomFloat" format="float" /&gt;
+
+        &lt;!-- 
+            说明: integer：整型值
+            使用：Customxmlns:CustomInteger = "100"
+        --&gt;
+        &lt;attr name="CustomInteger" format="integer" /&gt;
+
+        &lt;!-- 
+            说明: string：字符串
+            使用：Customxmlns:CustomString = "@string/..."
+        --&gt;
+        &lt;attr name = "CustomString" format="string" /&gt;
+
+        &lt;!-- 
+            说明: fraction：百分数
+            使用：Customxmlns:CustomFraction = "50%"
+        --&gt;
+        &lt;attr name = "CustomFraction" format="fraction" /&gt;
+
+        &lt;!-- 
+            说明: enum：枚举值
+            使用：Customxmlns:CustomOrientation = "vertical"
+        --&gt;
+        &lt;attr name="CustomOrientation"&gt;
+            &lt;enum name="horizontal" value="0" /&gt;
+            &lt;enum name="vertical" value="1" /&gt;
+        &lt;/attr&gt;    
+
+        &lt;!-- 
+            说明:  flag：位或运算
+            使用：Customxmlns:CustomWindowSoftInputMode = "stateUnspecified | stateUnchanged"
+        --&gt;
+        &lt;attr name="CustomWindowSoftInputMode"&gt;
+            &lt;flag name="stateUnspecified" value="0" /&gt;
+            &lt;flag name="stateUnchanged" value="1" /&gt;
+            &lt;flag name="stateHidden" value="2" /&gt;
+        &lt;/attr&gt;
+
+        &lt;!-- 
+            说明:  属性定义时可以指定多种类型值
+            使用：Customxmlns:CustomBackground = "@drawable/图片ID|#00FF00"
+        --&gt;
+        &lt;attr name="CustomBackground" format="reference|color" /&gt;
+
+    &lt;/declare-styleable&gt;
+
+&lt;/resources&gt;
+
+2. 在布局xml中如下使用该属性(其中com.customattrs为包名):
+&lt;com.customattrs.MyCustomView
+        xmlns:canremovechild="http://schemas.android.com/apk/res/com.customattrs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        canremovechild:CustomBoolean="true" /&gt;
+
+3. 在自定义组件中，可以如下获得xml中定义的值:
+在MyCustomView.java中的构造函数中：
+public MyCustomView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+
+    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MyCustomAttr);
+    boolean canRemoveChild = a.getBoolean(R.styleable.MyCustomAttr_CustomBoolean, false);
+    a.recycle();
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android常用代码3]]></title>
+    <link href="http://myfengnull.github.io/blog/2014/07/30/android3/"/>
+    <updated>2014-07-30T08:15:10+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2014/07/30/android3</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>-<strong>让AlertDialog在按钮被点击后不关闭</strong></p>
+
+<p>-<strong>闪光灯的开启和关闭</strong></p>
+
+<p>-<strong>让EditText失去焦点而不弹出软键盘</strong></p>
+
+<p>-<strong>强制EditText不弹出软键盘</strong></p>
+
+<hr />
+
+<h3>让AlertDialog在按钮被点击后不关闭</h3>
+
+<pre><code>/* *
+* * 设定使用AlertDialog时，当点击其中的按钮时，是否自动退出AlertDialog，disableOrEnable为true时退出，false时不退出
+* */
+private void disableOrEnableBtnCloseOnAlertDialog(DialogInterface dialog, boolean disableOrEnable){
+        try {
+        Field field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
+        field.setAccessible(true);
+        field.set(dialog, disableOrEnable);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<h3>闪光灯的开启和关闭</h3>
+
+<p>```</p>
+
+<!-- 打开Camera的权限 -->
+
+
+<p><uses-permission android:name="android.permission.CAMERA" />
+<uses-feature android:name="android.hardware.camera" />
+<uses-feature android:name="android.hardware.autofocus" /></p>
+
+<!-- 开启闪光灯权限 -->
+
+
+<p><uses-permission android:name="android.permission.FLASHLIGHT" /></p>
+
+<p>private static Camera camera = null;
+private static Parameters parameters_light = null;</p>
+
+<p>public static void turnOnLight() {
+    if(null == camera){
+        camera = Camera.open();
+        parameters_light = camera.getParameters();
+        parameters_light.setFlashMode(Parameters.FLASH_MODE_TORCH);// 开启闪光灯
+        camera.setParameters(parameters_light);
+    }
+}</p>
+
+<p>public static void turnOffLight() {
+    if(null != camera){
+        parameters_light.setFlashMode(Parameters.FLASH_MODE_OFF);// 关闭闪光灯
+        camera.setParameters(parameters_light);
+        camera.release();
+        camera = null;
+    }</p>
+
+<p>}
+```</p>
+
+<h3>让EditText失去焦点而不弹出软键盘</h3>
+
+<h6>只需要让其他的控件获取焦点即可：</h6>
+
+<pre><code>mTv_title.setFocusable(true);
+mTv_title.setFocusableInTouchMode(true);
+</code></pre>
+
+<h3>强制EditText不弹出软键盘</h3>
+
+<pre><code>mEt.setInputType(InputType.TYPE_NULL);
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android常用代码2]]></title>
+    <link href="http://myfengnull.github.io/blog/2014/07/29/android2/"/>
+    <updated>2014-07-29T09:00:24+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2014/07/29/android2</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>-<strong>获取控件在屏幕中的位置</strong></p>
+
+<p>-<strong>捕获按键事件</strong></p>
+
+<p>-<strong>振动效果</strong></p>
+
+<p>-<strong>监听Activity加载完毕</strong></p>
+
+<h3>获取控件在屏幕中的位置</h3>
+
+<pre><code>int[] locations = new int[2];  
+view.getLocationOnScreen(locations);  
+int x = locations[0];//获取组件当前位置的横坐标  
+int y = locations[1];//获取组件当前位置的纵坐标  
+</code></pre>
+
+<h3>捕获按键事件</h3>
+
+<pre><code>@Override
+public boolean onKeyDown(int keyCode, KeyEvent event) {  
+
+       if(keyCode==KeyEvent.KEYCODE_BACK){
+       }  
+
+       return super.onKeyDown(keyCode, event);
+}
+</code></pre>
+
+<h3>振动效果</h3>
+
+<h5>首先就要得到使用权限，在menifest.xml里面声明一下就可以了</h5>
+
+<pre><code>&lt;uses-permission android:name="android.permission.VIBRATE"/&gt;
+</code></pre>
+
+<h5>然后就可以在程序里面使用 振动了，下面可以得到振动效果的类</h5>
+
+<pre><code>Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+</code></pre>
+
+<h5>最后就是控制振动时间</h5>
+
+<pre><code>vibrator.vibrate(100);
+</code></pre>
+
+<h5>在需要的地方做上面的操作就可以完成振动的效果了。</h5>
+
+<h3>监听Activity加载完毕</h3>
+
+<h5>这个onWindowFocusChanged指的是这个Activity得到或者失去焦点的时候 就会call.</h5>
+
+<h5>也就是说 如果你想要做一个Activity一加载完毕，就触发什么的话 完全可以用这个！！</h5>
+
+<pre><code>@Override  
+public void onWindowFocusChanged(boolean hasFocus) {  
+    // TODO Auto-generated method stub  
+    super.onWindowFocusChanged(hasFocus);  
+} 
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

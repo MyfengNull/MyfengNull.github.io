@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Zxing | Feng Blog]]></title>
+  <link href="http://myfengnull.github.io/blog/categories/zxing/atom.xml" rel="self"/>
+  <link href="http://myfengnull.github.io/"/>
+  <updated>2016-08-26T15:01:27+08:00</updated>
+  <id>http://myfengnull.github.io/</id>
+  <author>
+    <name><![CDATA[YangShirong]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[实现扫描二维码和生成带logo的二维码]]></title>
+    <link href="http://myfengnull.github.io/blog/2015/07/15/android13/"/>
+    <updated>2015-07-15T19:44:46+08:00</updated>
+    <id>http://myfengnull.github.io/blog/2015/07/15/android13</id>
+    <content type="html"><![CDATA[<h1>欢迎来到风的博客</h1>
+
+<p>今天讲的是如何引用google的zxing库实现扫描二维码和生成带logo的二维码,源码库可以从github上下载[<a href="https://github.com/zxing/zxing">https://github.com/zxing/zxing</a>];在文章结尾也会分享我的Demo</p>
+
+<h5>扫描二维码</h5>
+
+<pre><code>  Intent startScan = new Intent(MainActivity.this,CaptureActivity.class);
+      startActivity(startScan);
+</code></pre>
+
+<h5>生成不带logo的二维码</h5>
+
+<pre><code>  String in = input.getText().toString();
+                if (in.equals("")) {
+                    Toast.makeText(MainActivity.this, "请输入文本", Toast.LENGTH_SHORT).show();
+                }
+                try {
+
+//TODO 也可以生成二维码
+//                    Bitmap qrcod = EncodingHandler.createQRCode(in, 400);
+//                    img.setImageBitmap(qrcod);
+                    // 写入数据信息到图片
+                    int width = 400, height = 400;
+                    QRCodeWriter writer = new QRCodeWriter();
+
+                    //把内容编码
+                    BitMatrix matrix = writer.encode(in, BarcodeFormat.QR_CODE, width, height);
+                    int ms[] = new int[width * height];
+                    //变换赋值
+                    for (int y = 0; y &lt; height; y++) {
+                        for (int x = 0; x &lt; width; x++) {
+                            if (matrix.get(x, y)) {
+                                //黑点
+                                ms[y * width + x] = 0xff000000;
+                            } else {
+                                //白点
+                                ms[y * width + x] = 0xffffffff;
+                            }
+                        }
+                    }
+                    //TODO 缓存
+                    Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    image.setPixels(ms, 0, width, 0, 0, width, height);
+                    //TODO 展示图片
+                    img.setImageBitmap(image);
+                    FileOutputStream out = new FileOutputStream("/sdcard/code2.png");
+                    //TODO 压缩
+                    image.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    Log.e("MMMM", "创建成功");
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+</code></pre>
+
+<h5>带logo的二维码</h5>
+
+<pre><code> //Todo 带logo的二维码
+    @Override
+    public void onClick(View v) {
+
+        String in = input.getText().toString();
+        if (in.equals("")) {
+            Toast.makeText(MainActivity.this, "请输入文本", Toast.LENGTH_SHORT).show();
+        }
+        try {
+            // 写入数据信息到图片
+            int width = 400, height = 400;
+            QRCodeWriter writer = new QRCodeWriter();
+            //把内容编码
+            BitMatrix matrix = writer.encode(in, BarcodeFormat.QR_CODE, width, height);
+            int ms[] = new int[width * height];
+            //变换赋值
+            for (int y = 0; y &lt; height; y++) {
+                for (int x = 0; x &lt; width; x++) {
+                    if (matrix.get(x, y)) {
+                        //黑点
+                        ms[y * width + x] = 0xff000000;
+                    } else {
+                        //白点
+                        ms[y * width + x] = 0xffffffff;
+                    }
+
+                }
+
+            }
+            //TODO 缓存
+            Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            image.setPixels(ms, 0, width, 0, 0, width, height);
+            //logo地址
+            Bitmap logo = BitmapFactory.decodeFile("/sdcard/gur03.png");
+            image = insertLogo(image, logo);
+            //TODO 展示图片
+            img.setImageBitmap(image);
+            //存储生成的二维码地址
+            FileOutputStream out = new FileOutputStream("/sdcard/code2.png");
+            //TODO 压缩
+            image.compress(Bitmap.CompressFormat.PNG, 100, out);
+            Log.e("MMMM", "创建成功");
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Bitmap insertLogo(Bitmap src, Bitmap logo) {
+        // 获取到两张图片的宽高
+        int width = src.getWidth();
+        int height = src.getHeight();
+        int gwidth = logo.getWidth();
+        int gheight = logo.getHeight();
+        // 大小图片的比例
+        float scale = width * 1.0f / 5 / gwidth;
+        // 工作缓冲区
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        // 获取缓冲区的画布
+        Canvas ca = new Canvas(bitmap);
+        // 话大图片
+        ca.drawBitmap(src, 0, 0, null);
+        ca.scale(scale, scale, width / 2, height / 2);
+        // 话小图片
+        ca.drawBitmap(logo, (width - gwidth) / 2, (height - gheight) / 2, null);
+        // 保存所画内容
+        ca.save(Canvas.ALL_SAVE_FLAG);
+        // 还原画布
+        ca.restore();
+        return bitmap;
+    }
+</code></pre>
+
+<p>注意利用画布将图片覆盖在生成的二维码上,图片是30*30的,
+原理是二维码中间有可以忽略的阴影
+app引用BarCodeTest类库
+Demo下载地址:<a href="https://github.com/MyfengNull/QrCode">https://github.com/MyfengNull/QrCode</a></p>
+
+<blockquote><p>本文原创下载请注明出处</p></blockquote>
+]]></content>
+  </entry>
+  
+</feed>

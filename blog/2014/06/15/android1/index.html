@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android常用代码1 - Feng Blog</title>
+  <meta name="author" content="YangShirong">
+
+  
+  <meta name="description" content="欢迎来到风的博客 -Activity跳转代码模板 -Toast使用 -获取当前系统时间 -获取屏幕宽度和高度 Activity跳转代码模板 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://myfengnull.github.io/blog/2014/06/15/android1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Feng Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Feng Blog</a></h1>
+  
+    <h2>To be or not to be that is a question.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.baidu.com" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="myfengnull.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android常用代码1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-15T08:22:24+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>欢迎来到风的博客</h1>
+
+<p>-<strong>Activity跳转代码模板</strong></p>
+
+<p>-<strong>Toast使用</strong></p>
+
+<p>-<strong>获取当前系统时间</strong></p>
+
+<p>-<strong>获取屏幕宽度和高度</strong></p>
+
+<h3>Activity跳转代码模板</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Intent intent = new Intent(A.this, B.class);
+</span><span class='line'>Bundle bundle = new Bundle();
+</span><span class='line'>bundle.putString("key", "value");
+</span><span class='line'>bundle.putInt("key", 0);
+</span><span class='line'>intent.putExtras(bundle);
+</span><span class='line'>startActivity(intent);
+</span><span class='line'>
+</span><span class='line'>-------------------------------------------------------------------------------
+</span><span class='line'>startActivityForResult(intent, requestCode);
+</span><span class='line'>
+</span><span class='line'>@Override
+</span><span class='line'>protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+</span><span class='line'>  if (resultCode == RESULT_OK) {      
+</span><span class='line'>  }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>--------------------------------------------------------------------------------
+</span><span class='line'>返回传递参数：
+</span><span class='line'>Intent intent = new Intent();
+</span><span class='line'>Bundle bundle = new Bundle();
+</span><span class='line'>bundle.putString("key", "value");
+</span><span class='line'>bundle.putInt("key", 0);
+</span><span class='line'>intent.putExtras(bundle);
+</span><span class='line'>setResult(RESULT_OK, intent);
+</span><span class='line'>finish();
+</span><span class='line'>
+</span><span class='line'>返回不传递参数：
+</span><span class='line'>setResult(RESULT_OK);
+</span><span class='line'>finish();</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Toast使用</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Toast.makeText(getApplicationContext(), "默认Toast样式", Toast.LENGTH_SHORT).show();
+</span><span class='line'>
+</span><span class='line'>private void makeTip(String info) {
+</span><span class='line'>  Toast toast = Toast.makeText(getApplicationContext(), info, Toast.LENGTH_SHORT);
+</span><span class='line'>  toast.setGravity(Gravity.CENTER, 0, 0);
+</span><span class='line'>  toast.show();
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>获取当前系统时间</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//12小时制
+</span><span class='line'>SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+</span><span class='line'>String date = sdf.format(new java.util.Date());
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>//24小时制
+</span><span class='line'>SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+</span><span class='line'>String date = sdf.format(new java.util.Date());</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>获取屏幕宽度和高度</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public static int displayWidth;  //屏幕宽度
+</span><span class='line'>public static int displayHeight; //屏幕高度
+</span><span class='line'>
+</span><span class='line'>DisplayMetrics displayMetrics = new DisplayMetrics();
+</span><span class='line'>getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+</span><span class='line'>displayWidth = displayMetrics.widthPixels;
+</span><span class='line'>displayHeight = displayMetrics.heightPixels;</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>但是，需要注意的是，在一个低密度的小屏手机上，仅靠上面的代码是不能获取正确的尺寸的。比如说，一部240x320像素的低密度手机，如果运行上述代码，获取到的屏幕尺寸是320x427。因此，研究之后发现，若没有设定多分辨率支持的话，Android系统会将240x320的低密度（120）尺寸转换为中等密度（160）对应的尺寸，这样的话就大大影响了程序的编码。所以，需要在工程的AndroidManifest.xml文件中，加入supports-screens节点，具体的内容如下：</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;supports-screens
+</span><span class='line'>  android:smallScreens="true"
+</span><span class='line'>  android:normalScreens="true"
+</span><span class='line'>  android:largeScreens="true"
+</span><span class='line'>  android:resizeable="true"
+</span><span class='line'>  android:anyDensity="true" /&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>这样的话，当前的Android程序就支持了多种分辨率，那么就可以得到正确的物理尺寸了。</h5>
+
+<p>-原文引自[<a href="http://www.67bar.com/archives/1971">http://www.67bar.com/archives/1971</a>]</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">YangShirong</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-06-15T08:22:24+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>, <a class='category' href='/blog/categories/chang-yong-dai-ma-kuai/'>常用代码块</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+   
+  <!-- JiaThis Button BEGIN -->
+<p style="font-size:20px;color:red;font-weight:bold;">Share:</p>
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share?uid=2067541" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2067541" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/07/29/android2/" title="Next Post: android常用代码2">android常用代码2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2067541"></script>
+<!-- UY END --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/05/android11/">Android网络传输中必用的两个加密算法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/15/android13/">实现扫描二维码和生成带logo的二维码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/23/android12/">Android中Socket通信</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/15/android9/">实现左右点击图片预览</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/02/android8/">判断sdCard是否挂载</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - YangShirong -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
